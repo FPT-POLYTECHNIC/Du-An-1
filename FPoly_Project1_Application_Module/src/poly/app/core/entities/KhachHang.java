@@ -1,5 +1,9 @@
 package poly.app.core.entities;
+<<<<<<< HEAD
 // Generated Nov 3, 2018 9:52:40 PM by Hibernate Tools 4.3.1
+=======
+// Generated Nov 5, 2018 2:07:26 PM by Hibernate Tools 4.3.1
+>>>>>>> c09ecb7e07a57babc9d5bc5e51aac3fee3792c68
 
 
 import java.util.Date;
@@ -116,10 +120,23 @@ public class KhachHang  implements java.io.Serializable {
     public boolean getGioiTinh() {
         return this.gioiTinh;
     }
+<<<<<<< HEAD
+=======
+    public boolean isGioiTinhNam(){
+        return this.gioiTinh;
+    }
+>>>>>>> c09ecb7e07a57babc9d5bc5e51aac3fee3792c68
     
     public void setGioiTinh(boolean gioiTinh) {
         this.gioiTinh = gioiTinh;
     }
+<<<<<<< HEAD
+=======
+    
+    public void setGioiTinhNam(){
+        this.gioiTinh = true;
+    }
+>>>>>>> c09ecb7e07a57babc9d5bc5e51aac3fee3792c68
     public Set<VeDat> getVeDats() {
         return this.veDats;
     }
@@ -129,9 +146,12 @@ public class KhachHang  implements java.io.Serializable {
     }
 
 
+<<<<<<< HEAD
     public boolean isName(){
         return this.gioiTinh;
     }
+=======
+>>>>>>> c09ecb7e07a57babc9d5bc5e51aac3fee3792c68
 
 
 }

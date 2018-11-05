@@ -1,5 +1,5 @@
 package poly.app.core.entities;
-// Generated Nov 3, 2018 9:52:40 PM by Hibernate Tools 4.3.1
+// Generated Nov 5, 2018 2:07:26 PM by Hibernate Tools 4.3.1
 
 
 
@@ -16,8 +16,7 @@ public class VeDat  implements java.io.Serializable {
     public VeDat() {
     }
 
-    public VeDat(String id, KhachHang khachHang, VeBan veBan) {
-       this.id = id;
+    public VeDat(KhachHang khachHang, VeBan veBan) {
        this.khachHang = khachHang;
        this.veBan = veBan;
     }

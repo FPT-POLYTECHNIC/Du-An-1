@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
-<!-- Generated Nov 3, 2018 9:52:40 PM by Hibernate Tools 4.3.1 -->
+<!-- Generated Nov 5, 2018 2:07:27 PM by Hibernate Tools 4.3.1 -->
 <hibernate-mapping>
     <class name="poly.app.core.entities.NguoiDung" table="nguoi_dung" catalog="du_an_1" optimistic-lock="version">
         <id name="id" type="string">
@@ -24,10 +24,10 @@
             <column name="so_dien_thoai" length="15" not-null="true" />
         </property>
         <property name="email" type="string">
-            <column name="email" length="45" />
+            <column name="email" length="45" not-null="true" />
         </property>
         <property name="diaChi" type="string">
-            <column name="dia_chi" length="100" />
+            <column name="dia_chi" length="100" not-null="true" />
         </property>
         <property name="ngayVaoLam" type="date">
             <column name="ngay_vao_lam" length="10" not-null="true" />
@@ -35,9 +35,12 @@
         <property name="gioiTinh" type="boolean">
             <column name="gioi_tinh" not-null="true" />
         </property>
+        <property name="dangLam" type="java.lang.Boolean">
+            <column name="dang_lam" />
+        </property>
         <set name="veBans" table="ve_ban" inverse="true" lazy="true" fetch="select">
             <key>
-                <column name="nhan_vien_id" length="15" not-null="true" />
+                <column name="nhan_vien_id" length="15" />
             </key>
             <one-to-many class="poly.app.core.entities.VeBan" />
         </set>

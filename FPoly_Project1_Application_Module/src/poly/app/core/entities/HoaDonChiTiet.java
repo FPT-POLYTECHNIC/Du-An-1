@@ -1,5 +1,5 @@
 package poly.app.core.entities;
-// Generated Nov 3, 2018 9:52:40 PM by Hibernate Tools 4.3.1
+// Generated Nov 5, 2018 2:07:26 PM by Hibernate Tools 4.3.1
 
 
 
@@ -9,27 +9,28 @@ package poly.app.core.entities;
 public class HoaDonChiTiet  implements java.io.Serializable {
 
 
-     private Integer id;
+     private int id;
      private DoAnChiTiet doAnChiTiet;
      private HoaDon hoaDon;
      private int soLuong;
-     private int donGia;
+     private int tongTien;
 
     public HoaDonChiTiet() {
     }
 
-    public HoaDonChiTiet(DoAnChiTiet doAnChiTiet, HoaDon hoaDon, int soLuong, int donGia) {
+    public HoaDonChiTiet(int id, DoAnChiTiet doAnChiTiet, HoaDon hoaDon, int soLuong, int tongTien) {
+       this.id = id;
        this.doAnChiTiet = doAnChiTiet;
        this.hoaDon = hoaDon;
        this.soLuong = soLuong;
-       this.donGia = donGia;
+       this.tongTien = tongTien;
     }
    
-    public Integer getId() {
+    public int getId() {
         return this.id;
     }
     
-    public void setId(Integer id) {
+    public void setId(int id) {
         this.id = id;
     }
     public DoAnChiTiet getDoAnChiTiet() {
@@ -53,12 +54,12 @@ public class HoaDonChiTiet  implements java.io.Serializable {
     public void setSoLuong(int soLuong) {
         this.soLuong = soLuong;
     }
-    public int getDonGia() {
-        return this.donGia;
+    public int getTongTien() {
+        return this.tongTien;
     }
     
-    public void setDonGia(int donGia) {
-        this.donGia = donGia;
+    public void setTongTien(int tongTien) {
+        this.tongTien = tongTien;
     }
 
 

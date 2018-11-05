@@ -49,7 +49,9 @@ public class LoaiPhim  implements java.io.Serializable {
         this.phims = phims;
     }
 
-
+    public String toString() {
+        return this.getTen();
+    }
 
 
 }

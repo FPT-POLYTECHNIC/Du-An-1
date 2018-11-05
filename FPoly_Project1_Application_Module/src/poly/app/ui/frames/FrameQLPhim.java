@@ -5,6 +5,10 @@
  */
 package poly.app.ui.frames;
 
+import java.util.List;
+import javax.swing.table.DefaultTableModel;
+import poly.app.core.daoimpl.PhimDaoImpl;
+import poly.app.core.entities.Phim;
 import poly.app.ui.dialogs.DialogThemPhim;
 import poly.app.ui.utils.TableRendererUtil;
 
@@ -17,6 +21,9 @@ public class FrameQLPhim extends javax.swing.JFrame {
     /**
      * Creates new form FrameQLNhanVien
      */
+    
+    List<Phim> listPhim = new PhimDaoImpl().getAll();
+    
     public FrameQLPhim() {
         initComponents();
         setLocationRelativeTo(null);
@@ -243,14 +250,34 @@ public class FrameQLPhim extends javax.swing.JFrame {
     
     
     public void loadDataToTable(){
-//        Đổ dữ liệu từ database vào table
-//        Code không quá 10 dòng
+        DefaultTableModel modelTable = (DefaultTableModel) tblPhim.getModel();
+        modelTable.setRowCount(0);
+        for ( Phim phim : listPhim ) {
+            Object[] record = new Object[]{
+                phim.getId(),
+                phim.getTen(),
+                phim.getThoiLuong(),
+                phim.getGioiHanTuoi(),
+                phim.getNgayCongChieu(),
+                phim.getNgonNgu(),
+                phim.getDienVien(),
+                phim.getQuocGia(),
+                phim.getNhaSanXuat(),
+                phim.getTrangThai()
+            };
+            modelTable.addRow(record);
+        }
     }
     
     /**
      * @param args the command line arguments
      */
     public static void main(String args[]) {
+        
+        List<Phim> listPhim = new PhimDaoImpl().getAll();
+        for ( Phim phim : listPhim ) {
+            System.out.println(phim.getTen());
+        }
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
@@ -276,7 +303,7 @@ public class FrameQLPhim extends javax.swing.JFrame {
         //</editor-fold>
         //</editor-fold>
         //</editor-fold>
-
+        
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {

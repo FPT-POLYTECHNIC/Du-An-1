@@ -5,8 +5,23 @@
  */
 package poly.app.ui.frames;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.Vector;
+import javax.swing.table.DefaultTableModel;
+import poly.app.core.daoimpl.DoAnChiTietDaoImpl;
+import poly.app.core.daoimpl.DoAnDaoImpl;
+import poly.app.core.entities.DoAn;
+import poly.app.core.entities.DoAnChiTiet;
+import poly.app.core.helper.DialogHelper;
 import poly.app.core.helper.TableStructureHelper;
+import poly.app.ui.dialogs.DialogThemDoAn;
 import poly.app.ui.utils.TableRendererUtil;
 
 /**
@@ -22,6 +37,7 @@ public class FrameQLDoAn extends javax.swing.JFrame {
         initComponents();
         setLocationRelativeTo(null);
         reRenderUI();
+        this.loadDataToTable();
     }
 
     private void reRenderUI() {
@@ -29,7 +45,7 @@ public class FrameQLDoAn extends javax.swing.JFrame {
         TableRendererUtil tblRenderer = new TableRendererUtil(tblDoAn);
         tblRenderer.setCellEditable(false);
         tblRenderer.changeHeaderStyle();
-        
+
         tblRenderer = new TableRendererUtil(tblDoAnChiTiet);
         tblRenderer.setCellEditable(false);
         tblRenderer.changeHeaderStyle();
@@ -128,7 +144,7 @@ public class FrameQLDoAn extends javax.swing.JFrame {
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnThem)
                     .addComponent(btnSua)
-                    .addComponent(jButton1)
+                    .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButton2))
                 .addContainerGap())
         );
@@ -157,6 +173,11 @@ public class FrameQLDoAn extends javax.swing.JFrame {
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit [columnIndex];
+            }
+        });
+        tblDoAn.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tblDoAnMouseClicked(evt);
             }
         });
         jScrollPane1.setViewportView(tblDoAn);
@@ -276,16 +297,60 @@ public class FrameQLDoAn extends javax.swing.JFrame {
     }//GEN-LAST:event_btnCollapseMouseReleased
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
-        loadDataToTable();
+        this.loadDataToTable();
     }//GEN-LAST:event_formWindowOpened
 
     private void btnThemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnThemActionPerformed
-        
+        this.insertDA();
     }//GEN-LAST:event_btnThemActionPerformed
 
+    private void tblDoAnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblDoAnMouseClicked
+        this.loadDoAnChiTiet();
+    }//GEN-LAST:event_tblDoAnMouseClicked
+    List<DoAn> listDoAn = new ArrayList<>();
+    List<DoAnChiTiet> listDoAnCT = new ArrayList<>();
+    Map<String, Object> mapDoAn = new HashMap<String, Object>();
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public void loadDataToTable() {
 //        Đổ dữ liệu từ database vào table
 //        Code không quá 10 dòng
+        DefaultTableModel modelDA = (DefaultTableModel) tblDoAn.getModel();
+        modelDA.setRowCount(0);
+        DoAnDaoImpl doAnDao = new DoAnDaoImpl();
+        listDoAn = doAnDao.getAll();
+        for (DoAn fill : listDoAn) {
+            Object[] record = new Object[]{
+                fill.getId(),
+                fill.getTen(),
+                fill.getLoaiDoAn().getTen()
+            };
+            modelDA.addRow(record);
+            mapDoAn.put(fill.getId(), fill);
+        }
+    }
+
+    public void loadDoAnChiTiet() {
+        int index = tblDoAn.getSelectedRow();
+        String id = (String) tblDoAn.getValueAt(index, 0);
+        DefaultTableModel modelDACT = (DefaultTableModel) tblDoAnChiTiet.getModel();
+        modelDACT.setRowCount(0);
+        DoAn doan = (DoAn)mapDoAn.get(id);
+        Set<DoAnChiTiet> dact = doan.getDoAnChiTiets();
+        for(DoAnChiTiet fill : dact)
+        {
+            Object[] record = new Object[]{
+                fill.getKichCoDoAn().getTen(),
+                fill.getDonGia(),
+                fill.isTrangThai()?"Đang được bán":"Đã ngưng bán"
+            };
+            modelDACT.addRow(record);
+        }
+
+    }
+    public void insertDA()
+    {
+        new DialogThemDoAn(this, true).setVisible(true);
     }
 
     /**

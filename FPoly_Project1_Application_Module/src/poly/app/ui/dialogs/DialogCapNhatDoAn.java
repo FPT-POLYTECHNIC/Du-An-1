@@ -5,69 +5,51 @@
  */
 package poly.app.ui.dialogs;
 
-import java.util.Date;
-import java.util.List;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JOptionPane;
 import poly.app.core.daoimpl.DoAnDaoImpl;
-import poly.app.core.daoimpl.LoaiDoAnDaoImpl;
 import poly.app.core.entities.DoAn;
-import poly.app.core.entities.LoaiDoAn;
-import poly.app.core.helper.DialogHelper;
 
 /**
  *
  * @author vothanhtai
  */
-public class DialogThemDoAn extends javax.swing.JDialog {
+public class DialogCapNhatDoAn extends javax.swing.JDialog {
 
+    DoAn doAn;
     /**
      * Creates new form DialogThemNhanVien
      */
-    public DialogThemDoAn(java.awt.Frame parent, boolean modal) {
+    public DialogCapNhatDoAn(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
         setLocationRelativeTo(null);
-        this.setTitle("Thêm Đồ Ăn");
+    }
+    
+    public DialogCapNhatDoAn(java.awt.Frame parent, boolean modal, String doAnId) {
+        super(parent, modal);
+        initComponents();
+        setLocationRelativeTo(null);
+        
+        doAn = new DoAnDaoImpl().getById(doAnId);
     }
     
     private void loadLoaiDoAnToCombobox(){
-        
-        DefaultComboBoxModel modelComboBox = (DefaultComboBoxModel) cboLoaiDoAn.getModel();
-        modelComboBox.removeAllElements();
-        LoaiDoAnDaoImpl lda = new LoaiDoAnDaoImpl();
-        List<LoaiDoAn> listLDA = lda.getAll();
-        for(LoaiDoAn fill : listLDA)
-        {
-            modelComboBox.addElement(fill);
-        }
+
+    }
+    
+    private void setModelToInput(){
+//        Do du lieu len input
     }
     
     private DoAn getModelFromInput(){
 //        code lay do an tu input
-//        Ma do an se co dang: DA01293411 hoac NU123412418716 tuy theo loai
-//        vidu neu la nuoc uong: "NU" + new Date().getTime();
-        DoAn model = new DoAn();
-        model.setTen(txtTen.getText());
-        model.setLoaiDoAn((LoaiDoAn)cboLoaiDoAn.getSelectedItem());
-        LoaiDoAn lda = (LoaiDoAn) cboLoaiDoAn.getSelectedItem();
-        if(lda.getId()==1)
-        {
-            model.setId("DA"+new Date().getTime());
-        }
-        else
-        {
-            model.setId("NU"+ new Date().getTime());
-        }
-        return model;
+
+        return null;
     }
     
-    private boolean insertModelToDatabase(){
-//        goi ham getNguoiDungFromInput
+    private boolean updateModelToDatabase(){
+//        goi ham getModelFromInput
         try {
-            DoAnDaoImpl dad = new DoAnDaoImpl();
-            dad.insert(getModelFromInput());
-            JOptionPane.showMessageDialog(this, "Thêm dữ liệu thành công !");
+
         } catch (Exception e) {
         }
         return false;
@@ -115,11 +97,6 @@ public class DialogThemDoAn extends javax.swing.JDialog {
         });
 
         btnHuy.setText("Huỷ");
-        btnHuy.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnHuyActionPerformed(evt);
-            }
-        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -188,16 +165,12 @@ public class DialogThemDoAn extends javax.swing.JDialog {
     }//GEN-LAST:event_formWindowOpened
 
     private void btnLuuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLuuActionPerformed
-        if (insertModelToDatabase()){
+        if (updateModelToDatabase()){
 
         }else{
             
         }
     }//GEN-LAST:event_btnLuuActionPerformed
-
-    private void btnHuyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHuyActionPerformed
-        this.dispose();
-    }//GEN-LAST:event_btnHuyActionPerformed
 
     /**
      * @param args the command line arguments
@@ -216,21 +189,23 @@ public class DialogThemDoAn extends javax.swing.JDialog {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(DialogThemDoAn.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(DialogCapNhatDoAn.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(DialogThemDoAn.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(DialogCapNhatDoAn.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(DialogThemDoAn.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(DialogCapNhatDoAn.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(DialogThemDoAn.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(DialogCapNhatDoAn.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
+        //</editor-fold>
         //</editor-fold>
         //</editor-fold>
 
         /* Create and display the dialog */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                DialogThemDoAn dialog = new DialogThemDoAn(new javax.swing.JFrame(), true);
+                DialogCapNhatDoAn dialog = new DialogCapNhatDoAn(new javax.swing.JFrame(), true);
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                     @Override
                     public void windowClosing(java.awt.event.WindowEvent e) {

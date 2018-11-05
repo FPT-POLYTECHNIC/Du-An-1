@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
-<!-- Generated Nov 3, 2018 9:52:40 PM by Hibernate Tools 4.3.1 -->
+<!-- Generated Nov 5, 2018 2:07:27 PM by Hibernate Tools 4.3.1 -->
 <hibernate-mapping>
     <class name="poly.app.core.entities.VeBan" table="ve_ban" catalog="du_an_1" optimistic-lock="version">
         <id name="id" type="string">
@@ -15,7 +15,7 @@
             <column name="gia_ve_id" not-null="true" />
         </many-to-one>
         <many-to-one name="nguoiDung" class="poly.app.core.entities.NguoiDung" fetch="select">
-            <column name="nhan_vien_id" length="15" not-null="true" />
+            <column name="nhan_vien_id" length="15" />
         </many-to-one>
         <many-to-one name="suatChieu" class="poly.app.core.entities.SuatChieu" fetch="select">
             <column name="suat_chieu_id" not-null="true" />
@@ -23,14 +23,9 @@
         <property name="ngayBan" type="date">
             <column name="ngay_ban" length="10" not-null="true" />
         </property>
-        <property name="tongCong" type="int">
-            <column name="tong_cong" not-null="true" />
+        <property name="tongTien" type="int">
+            <column name="tong_tien" not-null="true" />
         </property>
-        <set name="veDats" table="ve_dat" inverse="true" lazy="true" fetch="select">
-            <key>
-                <column name="ve_ban_id" length="15" not-null="true" />
-            </key>
-            <one-to-many class="poly.app.core.entities.VeDat" />
-        </set>
+        <one-to-one name="veDat" class="poly.app.core.entities.VeDat"></one-to-one>
     </class>
 </hibernate-mapping>

@@ -1,5 +1,5 @@
 package poly.app.core.entities;
-// Generated Nov 3, 2018 9:52:40 PM by Hibernate Tools 4.3.1
+// Generated Nov 5, 2018 2:07:26 PM by Hibernate Tools 4.3.1
 
 
 import java.util.HashSet;
@@ -11,36 +11,37 @@ import java.util.Set;
 public class DoAnChiTiet  implements java.io.Serializable {
 
 
-     private Integer id;
+     private int id;
      private DoAn doAn;
      private KichCoDoAn kichCoDoAn;
      private int donGia;
-     private boolean trangThai;
+     private Boolean dangBan;
      private Set<HoaDonChiTiet> hoaDonChiTiets = new HashSet<HoaDonChiTiet>(0);
 
     public DoAnChiTiet() {
     }
 
 	
-    public DoAnChiTiet(DoAn doAn, KichCoDoAn kichCoDoAn, int donGia, boolean trangThai) {
+    public DoAnChiTiet(int id, DoAn doAn, KichCoDoAn kichCoDoAn, int donGia) {
+        this.id = id;
         this.doAn = doAn;
         this.kichCoDoAn = kichCoDoAn;
         this.donGia = donGia;
-        this.trangThai = trangThai;
     }
-    public DoAnChiTiet(DoAn doAn, KichCoDoAn kichCoDoAn, int donGia, boolean trangThai, Set<HoaDonChiTiet> hoaDonChiTiets) {
+    public DoAnChiTiet(int id, DoAn doAn, KichCoDoAn kichCoDoAn, int donGia, Boolean dangBan, Set<HoaDonChiTiet> hoaDonChiTiets) {
+       this.id = id;
        this.doAn = doAn;
        this.kichCoDoAn = kichCoDoAn;
        this.donGia = donGia;
-       this.trangThai = trangThai;
+       this.dangBan = dangBan;
        this.hoaDonChiTiets = hoaDonChiTiets;
     }
    
-    public Integer getId() {
+    public int getId() {
         return this.id;
     }
     
-    public void setId(Integer id) {
+    public void setId(int id) {
         this.id = id;
     }
     public DoAn getDoAn() {
@@ -64,12 +65,12 @@ public class DoAnChiTiet  implements java.io.Serializable {
     public void setDonGia(int donGia) {
         this.donGia = donGia;
     }
-    public boolean isTrangThai() {
-        return this.trangThai;
+    public Boolean isDangBan() {
+        return this.dangBan;
     }
     
-    public void setTrangThai(boolean trangThai) {
-        this.trangThai = trangThai;
+    public void setDangBan(Boolean dangBan) {
+        this.dangBan = dangBan;
     }
     public Set<HoaDonChiTiet> getHoaDonChiTiets() {
         return this.hoaDonChiTiets;

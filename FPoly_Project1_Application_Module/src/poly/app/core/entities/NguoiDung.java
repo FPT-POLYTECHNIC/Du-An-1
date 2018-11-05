@@ -1,5 +1,5 @@
 package poly.app.core.entities;
-// Generated Nov 3, 2018 9:52:40 PM by Hibernate Tools 4.3.1
+// Generated Nov 5, 2018 2:07:26 PM by Hibernate Tools 4.3.1
 
 
 import java.util.Date;
@@ -22,6 +22,7 @@ public class NguoiDung  implements java.io.Serializable {
      private String diaChi;
      private Date ngayVaoLam;
      private boolean gioiTinh;
+     private Boolean dangLam;
      private Set<VeBan> veBans = new HashSet<VeBan>(0);
      private Set<HoaDon> hoaDons = new HashSet<HoaDon>(0);
 
@@ -29,17 +30,19 @@ public class NguoiDung  implements java.io.Serializable {
     }
 
 	
-    public NguoiDung(String id, VaiTro vaiTro, String hoTen, String matKhau, String soCmnd, String soDienThoai, Date ngayVaoLam, boolean gioiTinh) {
+    public NguoiDung(String id, VaiTro vaiTro, String hoTen, String matKhau, String soCmnd, String soDienThoai, String email, String diaChi, Date ngayVaoLam, boolean gioiTinh) {
         this.id = id;
         this.vaiTro = vaiTro;
         this.hoTen = hoTen;
         this.matKhau = matKhau;
         this.soCmnd = soCmnd;
         this.soDienThoai = soDienThoai;
+        this.email = email;
+        this.diaChi = diaChi;
         this.ngayVaoLam = ngayVaoLam;
         this.gioiTinh = gioiTinh;
     }
-    public NguoiDung(String id, VaiTro vaiTro, String hoTen, String matKhau, String soCmnd, String soDienThoai, String email, String diaChi, Date ngayVaoLam, boolean gioiTinh, Set<VeBan> veBans, Set<HoaDon> hoaDons) {
+    public NguoiDung(String id, VaiTro vaiTro, String hoTen, String matKhau, String soCmnd, String soDienThoai, String email, String diaChi, Date ngayVaoLam, boolean gioiTinh, Boolean dangLam, Set<VeBan> veBans, Set<HoaDon> hoaDons) {
        this.id = id;
        this.vaiTro = vaiTro;
        this.hoTen = hoTen;
@@ -50,6 +53,7 @@ public class NguoiDung  implements java.io.Serializable {
        this.diaChi = diaChi;
        this.ngayVaoLam = ngayVaoLam;
        this.gioiTinh = gioiTinh;
+       this.dangLam = dangLam;
        this.veBans = veBans;
        this.hoaDons = hoaDons;
     }
@@ -121,8 +125,24 @@ public class NguoiDung  implements java.io.Serializable {
         return this.gioiTinh;
     }
     
+    public boolean isGioiTinhNam(){
+        return this.gioiTinh;
+    }
+    
     public void setGioiTinh(boolean gioiTinh) {
         this.gioiTinh = gioiTinh;
+    }
+    
+    public void setGioiTinhNam(){
+        this.gioiTinh = true;
+    }
+    
+    public Boolean isDangLam() {
+        return this.dangLam;
+    }
+    
+    public void setDangLam(Boolean dangLam) {
+        this.dangLam = dangLam;
     }
     public Set<VeBan> getVeBans() {
         return this.veBans;
@@ -140,9 +160,7 @@ public class NguoiDung  implements java.io.Serializable {
     }
 
 
-    public boolean isName(){
-        return this.gioiTinh;
-    }
+
 
 }
 

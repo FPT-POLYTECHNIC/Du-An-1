@@ -1,6 +1,6 @@
-
 package poly.app.core.entities;
-// Generated Nov 3, 2018 10:13:24 AM by Hibernate Tools 4.3.1
+// Generated Nov 5, 2018 2:07:26 PM by Hibernate Tools 4.3.1
+
 
 import java.util.Date;
 import java.util.HashSet;
@@ -16,7 +16,7 @@ public class Phim  implements java.io.Serializable {
      private LoaiPhim loaiPhim;
      private String ten;
      private int thoiLuong;
-     private Integer gioiHanTuoi;
+     private int gioiHanTuoi;
      private Date ngayCongChieu;
      private String ngonNgu;
      private String dienVien;
@@ -24,20 +24,28 @@ public class Phim  implements java.io.Serializable {
      private String nhaSanXuat;
      private String tomTat;
      private String trangThai;
+     private Boolean daXoa;
      private Set<SuatChieu> suatChieus = new HashSet<SuatChieu>(0);
 
     public Phim() {
     }
 
 	
-    public Phim(String id, LoaiPhim loaiPhim, String ten, int thoiLuong) {
+    public Phim(String id, LoaiPhim loaiPhim, String ten, int thoiLuong, int gioiHanTuoi, Date ngayCongChieu, String ngonNgu, String dienVien, String quocGia, String nhaSanXuat, String tomTat, String trangThai) {
         this.id = id;
         this.loaiPhim = loaiPhim;
         this.ten = ten;
         this.thoiLuong = thoiLuong;
+        this.gioiHanTuoi = gioiHanTuoi;
+        this.ngayCongChieu = ngayCongChieu;
+        this.ngonNgu = ngonNgu;
+        this.dienVien = dienVien;
+        this.quocGia = quocGia;
+        this.nhaSanXuat = nhaSanXuat;
+        this.tomTat = tomTat;
+        this.trangThai = trangThai;
     }
-
-    public Phim(String id, LoaiPhim loaiPhim, String ten, int thoiLuong, Integer gioiHanTuoi, Date ngayCongChieu, String ngonNgu, String dienVien, String quocGia, String nhaSanXuat, String tomTat, String trangThai, Set<SuatChieu> suatChieus) {
+    public Phim(String id, LoaiPhim loaiPhim, String ten, int thoiLuong, int gioiHanTuoi, Date ngayCongChieu, String ngonNgu, String dienVien, String quocGia, String nhaSanXuat, String tomTat, String trangThai, Boolean daXoa, Set<SuatChieu> suatChieus) {
        this.id = id;
        this.loaiPhim = loaiPhim;
        this.ten = ten;
@@ -50,6 +58,7 @@ public class Phim  implements java.io.Serializable {
        this.nhaSanXuat = nhaSanXuat;
        this.tomTat = tomTat;
        this.trangThai = trangThai;
+       this.daXoa = daXoa;
        this.suatChieus = suatChieus;
     }
    
@@ -60,101 +69,101 @@ public class Phim  implements java.io.Serializable {
     public void setId(String id) {
         this.id = id;
     }
-
     public LoaiPhim getLoaiPhim() {
         return this.loaiPhim;
     }
-
+    
     public void setLoaiPhim(LoaiPhim loaiPhim) {
         this.loaiPhim = loaiPhim;
     }
-
     public String getTen() {
         return this.ten;
     }
-
+    
     public void setTen(String ten) {
         this.ten = ten;
     }
-
     public int getThoiLuong() {
         return this.thoiLuong;
     }
-
+    
     public void setThoiLuong(int thoiLuong) {
         this.thoiLuong = thoiLuong;
     }
-
-    public Integer getGioiHanTuoi() {
+    public int getGioiHanTuoi() {
         return this.gioiHanTuoi;
     }
-
-    public void setGioiHanTuoi(Integer gioiHanTuoi) {
+    
+    public void setGioiHanTuoi(int gioiHanTuoi) {
         this.gioiHanTuoi = gioiHanTuoi;
     }
-
     public Date getNgayCongChieu() {
         return this.ngayCongChieu;
     }
-
+    
     public void setNgayCongChieu(Date ngayCongChieu) {
         this.ngayCongChieu = ngayCongChieu;
     }
-
     public String getNgonNgu() {
         return this.ngonNgu;
     }
-
+    
     public void setNgonNgu(String ngonNgu) {
         this.ngonNgu = ngonNgu;
     }
-
     public String getDienVien() {
         return this.dienVien;
     }
-
+    
     public void setDienVien(String dienVien) {
         this.dienVien = dienVien;
     }
-
     public String getQuocGia() {
         return this.quocGia;
     }
-
+    
     public void setQuocGia(String quocGia) {
         this.quocGia = quocGia;
     }
-
     public String getNhaSanXuat() {
         return this.nhaSanXuat;
     }
-
+    
     public void setNhaSanXuat(String nhaSanXuat) {
         this.nhaSanXuat = nhaSanXuat;
     }
-
     public String getTomTat() {
         return this.tomTat;
     }
-
+    
     public void setTomTat(String tomTat) {
         this.tomTat = tomTat;
     }
-
     public String getTrangThai() {
         return this.trangThai;
     }
-
+    
     public void setTrangThai(String trangThai) {
         this.trangThai = trangThai;
     }
-
+    public Boolean isDaXoa() {
+        return this.daXoa;
+    }
+    
+    public void setDaXoa(Boolean daXoa) {
+        this.daXoa = daXoa;
+    }
     public Set<SuatChieu> getSuatChieus() {
         return this.suatChieus;
     }
-
+    
     public void setSuatChieus(Set<SuatChieu> suatChieus) {
         this.suatChieus = suatChieus;
     }
 
+
+
+
 }
+
+

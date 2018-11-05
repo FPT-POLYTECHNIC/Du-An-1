@@ -1,5 +1,5 @@
 package poly.app.core.entities;
-// Generated Nov 3, 2018 9:52:40 PM by Hibernate Tools 4.3.1
+// Generated Nov 5, 2018 2:07:26 PM by Hibernate Tools 4.3.1
 
 
 import java.util.HashSet;
@@ -11,36 +11,41 @@ import java.util.Set;
 public class GheNgoi  implements java.io.Serializable {
 
 
-     private Integer id;
+     private int id;
      private LoaiGhe loaiGhe;
      private PhongChieu phongChieu;
      private String viTriDay;
      private int viTriCot;
+     private boolean daChon;
      private Set<VeBan> veBans = new HashSet<VeBan>(0);
 
     public GheNgoi() {
     }
 
 	
-    public GheNgoi(LoaiGhe loaiGhe, PhongChieu phongChieu, String viTriDay, int viTriCot) {
+    public GheNgoi(int id, LoaiGhe loaiGhe, PhongChieu phongChieu, String viTriDay, int viTriCot, boolean daChon) {
+        this.id = id;
         this.loaiGhe = loaiGhe;
         this.phongChieu = phongChieu;
         this.viTriDay = viTriDay;
         this.viTriCot = viTriCot;
+        this.daChon = daChon;
     }
-    public GheNgoi(LoaiGhe loaiGhe, PhongChieu phongChieu, String viTriDay, int viTriCot, Set<VeBan> veBans) {
+    public GheNgoi(int id, LoaiGhe loaiGhe, PhongChieu phongChieu, String viTriDay, int viTriCot, boolean daChon, Set<VeBan> veBans) {
+       this.id = id;
        this.loaiGhe = loaiGhe;
        this.phongChieu = phongChieu;
        this.viTriDay = viTriDay;
        this.viTriCot = viTriCot;
+       this.daChon = daChon;
        this.veBans = veBans;
     }
    
-    public Integer getId() {
+    public int getId() {
         return this.id;
     }
     
-    public void setId(Integer id) {
+    public void setId(int id) {
         this.id = id;
     }
     public LoaiGhe getLoaiGhe() {
@@ -70,6 +75,13 @@ public class GheNgoi  implements java.io.Serializable {
     
     public void setViTriCot(int viTriCot) {
         this.viTriCot = viTriCot;
+    }
+    public boolean isDaChon() {
+        return this.daChon;
+    }
+    
+    public void setDaChon(boolean daChon) {
+        this.daChon = daChon;
     }
     public Set<VeBan> getVeBans() {
         return this.veBans;

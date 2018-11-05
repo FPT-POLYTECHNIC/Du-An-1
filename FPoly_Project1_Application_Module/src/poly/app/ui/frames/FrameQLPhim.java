@@ -5,6 +5,11 @@
  */
 package poly.app.ui.frames;
 
+import java.util.List;
+import javax.swing.table.DefaultTableModel;
+import poly.app.core.daoimpl.PhimDaoImpl;
+import poly.app.core.entities.Phim;
+import poly.app.ui.dialogs.DialogCapNhatPhim;
 import poly.app.ui.dialogs.DialogThemPhim;
 import poly.app.ui.utils.TableRendererUtil;
 
@@ -17,6 +22,9 @@ public class FrameQLPhim extends javax.swing.JFrame {
     /**
      * Creates new form FrameQLNhanVien
      */
+    
+    List<Phim> listPhim;
+    
     public FrameQLPhim() {
         initComponents();
         setLocationRelativeTo(null);
@@ -93,6 +101,11 @@ public class FrameQLPhim extends javax.swing.JFrame {
 
         btnSua.setFont(new java.awt.Font("Helvetica Neue", 0, 14)); // NOI18N
         btnSua.setText("Sửa");
+        btnSua.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSuaActionPerformed(evt);
+            }
+        });
 
         jButton1.setText("Xoá");
 
@@ -137,6 +150,11 @@ public class FrameQLPhim extends javax.swing.JFrame {
 
             public Class getColumnClass(int columnIndex) {
                 return types [columnIndex];
+            }
+        });
+        tblPhim.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tblPhimMouseClicked(evt);
             }
         });
         jScrollPane1.setViewportView(tblPhim);
@@ -238,19 +256,54 @@ public class FrameQLPhim extends javax.swing.JFrame {
 
     private void btnThemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnThemActionPerformed
         new DialogThemPhim(this, true).setVisible(true);
+        loadDataToTable();
     }//GEN-LAST:event_btnThemActionPerformed
+
+    private void tblPhimMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblPhimMouseClicked
+        if ( evt.getClickCount() >= 2 ) {
+            int index = tblPhim.getSelectedRow();
+            String id = tblPhim.getValueAt(index, 0) + "";
+            new DialogCapNhatPhim(this, true, id).setVisible(true);
+            loadDataToTable();
+        }
+    }//GEN-LAST:event_tblPhimMouseClicked
+
+    private void btnSuaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSuaActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnSuaActionPerformed
 
     
     
     public void loadDataToTable(){
-//        Đổ dữ liệu từ database vào table
-//        Code không quá 10 dòng
+        listPhim = new PhimDaoImpl().getAll();
+        DefaultTableModel modelTable = (DefaultTableModel) tblPhim.getModel();
+        modelTable.setRowCount(0);
+        for ( Phim phim : listPhim ) {
+            Object[] record = new Object[]{
+                phim.getId(),
+                phim.getTen(),
+                phim.getThoiLuong(),
+                phim.getGioiHanTuoi(),
+                phim.getNgayCongChieu(),
+                phim.getNgonNgu(),
+                phim.getDienVien(),
+                phim.getQuocGia(),
+                phim.getNhaSanXuat(),
+                phim.getTrangThai()
+            };
+            modelTable.addRow(record);
+        }
     }
     
     /**
      * @param args the command line arguments
      */
     public static void main(String args[]) {
+        
+        List<Phim> listPhim = new PhimDaoImpl().getAll();
+        for ( Phim phim : listPhim ) {
+            System.out.println(phim.getTen());
+        }
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
@@ -276,7 +329,7 @@ public class FrameQLPhim extends javax.swing.JFrame {
         //</editor-fold>
         //</editor-fold>
         //</editor-fold>
-
+        
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {

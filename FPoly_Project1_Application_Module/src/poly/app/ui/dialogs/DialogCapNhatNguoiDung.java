@@ -5,39 +5,51 @@
  */
 package poly.app.ui.dialogs;
 
+import poly.app.core.daoimpl.NguoiDungDaoImpl;
 import poly.app.core.entities.NguoiDung;
 
 /**
  *
  * @author vothanhtai
  */
-public class DialogThemNguoiDung extends javax.swing.JDialog {
+public class DialogCapNhatNguoiDung extends javax.swing.JDialog {
 
+    NguoiDung nguoiDung;
     /**
      * Creates new form DialogThemNhanVien
      */
-    public DialogThemNguoiDung(java.awt.Frame parent, boolean modal) {
+    public DialogCapNhatNguoiDung(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
         setLocationRelativeTo(null);
+    }
+    
+    public DialogCapNhatNguoiDung(java.awt.Frame parent, boolean modal, String nguoiDungId) {
+        super(parent, modal);
+        initComponents();
+        setLocationRelativeTo(null);
+        
+        nguoiDung = new NguoiDungDaoImpl().getById(nguoiDungId);
     }
     
     private void loadVaiTroToCombobox(){
 
     }
     
+    private void setModelToInput(){
+//        Do du lieu len input
+    }
+    
     private NguoiDung getModelFromInput(){
 //        code lay nguoi dung tu input
-//        nho set mat khau cho nguoi dung
-//        Get mat khau bang StringUtil.randomString()
-//        Ma nguoi dung se co dang: AD01293411 hoac EM123412418716 hoac MA129384241 tuy theo vai tro
-//        vidu neu la admin: "AD" + new Date().getTime();
+
 
         return null;
     }
     
-    private boolean insertModelToDatabase(){
+    private boolean updateModelToDatabase(){
 //        goi ham getNguoiDungFromInput
+//        set lai gia tri moi cho nguoi dung
         try {
 
         } catch (Exception e) {
@@ -222,7 +234,7 @@ public class DialogThemNguoiDung extends javax.swing.JDialog {
     }//GEN-LAST:event_formWindowOpened
 
     private void btnLuuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLuuActionPerformed
-        if (insertModelToDatabase()){
+        if (updateModelToDatabase()){
             
         }else{
             
@@ -246,21 +258,23 @@ public class DialogThemNguoiDung extends javax.swing.JDialog {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(DialogThemNguoiDung.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(DialogCapNhatNguoiDung.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(DialogThemNguoiDung.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(DialogCapNhatNguoiDung.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(DialogThemNguoiDung.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(DialogCapNhatNguoiDung.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(DialogThemNguoiDung.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(DialogCapNhatNguoiDung.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
+        //</editor-fold>
         //</editor-fold>
         //</editor-fold>
 
         /* Create and display the dialog */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                DialogThemNguoiDung dialog = new DialogThemNguoiDung(new javax.swing.JFrame(), true);
+                DialogCapNhatNguoiDung dialog = new DialogCapNhatNguoiDung(new javax.swing.JFrame(), true);
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                     @Override
                     public void windowClosing(java.awt.event.WindowEvent e) {

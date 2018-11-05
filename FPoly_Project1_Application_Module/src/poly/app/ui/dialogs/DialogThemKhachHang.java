@@ -5,7 +5,7 @@
  */
 package poly.app.ui.dialogs;
 
-import poly.app.core.entities.NguoiDung;
+import poly.app.core.entities.KhachHang;
 
 /**
  *
@@ -21,22 +21,18 @@ public class DialogThemKhachHang extends javax.swing.JDialog {
         initComponents();
         setLocationRelativeTo(null);
     }
-    
-    private void loadVaiTroToCombobox(){
 
-    }
-    
-    private NguoiDung getModelFromInput(){
-//        code lay nguoi dung tu input
-//        nho set mat khau cho nguoi dung
+    private KhachHang getModelFromInput(){
+//        code lay khach hang tu input
+//        nho set mat khau cho khach hang
 //        Get mat khau bang StringUtil.randomString()
-//        Ma nguoi dung se co dang: AD01293411 hoac EM123412418716 hoac MA129384241 tuy theo vai tro
-//        vidu neu la admin: "AD" + new Date().getTime();
+//        Khach Hang dung se co dang: KH01293411
+//        cach lam ma Khach Hang: "KH" + new Date().getTime();
 
         return null;
     }
     
-    private boolean insertNguoiDungToDatabase(){
+    private boolean insertModelToDatabase(){
 //        goi ham getNguoiDungFromInput
         try {
 
@@ -205,11 +201,11 @@ public class DialogThemKhachHang extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
-        loadVaiTroToCombobox();
+        
     }//GEN-LAST:event_formWindowOpened
 
     private void btnLuuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLuuActionPerformed
-        if (insertNguoiDungToDatabase()){
+        if (insertModelToDatabase()){
             
         }else{
             

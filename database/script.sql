@@ -388,7 +388,7 @@ DROP TABLE IF EXISTS `phim`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
  SET character_set_client = utf8mb4 ;
 CREATE TABLE `phim` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `id` varchar(15) NOT NULL,
   `ten` varchar(100) NOT NULL,
   `thoi_luong` int(10) unsigned NOT NULL,
   `gioi_han_tuoi` int(10) unsigned DEFAULT '0',
@@ -403,7 +403,7 @@ CREATE TABLE `phim` (
   PRIMARY KEY (`id`),
   KEY `FK_PHIM_LOAIPHIM_idx` (`loai_phim_id`),
   CONSTRAINT `FK_PHIM_LOAIPHIM` FOREIGN KEY (`loai_phim_id`) REFERENCES `loai_phim` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -412,7 +412,7 @@ CREATE TABLE `phim` (
 
 LOCK TABLES `phim` WRITE;
 /*!40000 ALTER TABLE `phim` DISABLE KEYS */;
-INSERT INTO `phim` VALUES (1,'Phim con heo',60,18,'2018-12-14','Japanese','Japan','JAPAN','Japan.co.ltd','Hấp dẫn, lên máu','chuachieu',1),(2,'Phim con người',90,6,'2018-12-01','Vietnamese','Vietnam','VIETNAM','Viet.co.ltd','Bình thường','dangchieu',2);
+INSERT INTO `phim` VALUES ('1','Phim con heo',60,18,'2018-12-14','Japanese','Japan','JAPAN','Japan.co.ltd','Hấp dẫn, lên máu','chuachieu',1),('2','Phim con người',90,6,'2018-12-01','Vietnamese','Vietnam','VIETNAM','Viet.co.ltd','Bình thường','dangchieu',2);
 /*!40000 ALTER TABLE `phim` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -453,13 +453,13 @@ CREATE TABLE `suat_chieu` (
   `gio_bat_dau` time NOT NULL,
   `gio_ket_thuc` time NOT NULL,
   `ngay_chieu` date NOT NULL,
-  `phim_id` int(10) unsigned NOT NULL,
+  `phim_id` varchar(15) NOT NULL,
   `phong_chieu_id` int(10) unsigned NOT NULL,
   `dinh_dang_phim_id` varchar(5) NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `FK_SUATCHIEU_PHIM_idx` (`phim_id`),
   KEY `FK_SUATCHIEU_PHONGCHIEU_idx` (`phong_chieu_id`),
   KEY `FK_SUATCHIEU_DINHDANGPHIM_idx` (`dinh_dang_phim_id`),
+  KEY `FK_SUATCHIEU_PHIM_idx` (`phim_id`),
   CONSTRAINT `FK_SUATCHIEU_DINHDANGPHIM` FOREIGN KEY (`dinh_dang_phim_id`) REFERENCES `dinh_dang_phim` (`id`),
   CONSTRAINT `FK_SUATCHIEU_PHIM` FOREIGN KEY (`phim_id`) REFERENCES `phim` (`id`),
   CONSTRAINT `FK_SUATCHIEU_PHONGCHIEU` FOREIGN KEY (`phong_chieu_id`) REFERENCES `phong_chieu` (`id`)
@@ -472,7 +472,7 @@ CREATE TABLE `suat_chieu` (
 
 LOCK TABLES `suat_chieu` WRITE;
 /*!40000 ALTER TABLE `suat_chieu` DISABLE KEYS */;
-INSERT INTO `suat_chieu` VALUES (1,'20:00:00','22:00:00','2018-11-11',1,1,'3D'),(2,'09:00:00','11:00:00','2018-12-12',2,2,'IMAX');
+INSERT INTO `suat_chieu` VALUES (1,'20:00:00','22:00:00','2018-11-11','1',1,'3D'),(2,'09:00:00','11:00:00','2018-12-12','2',2,'IMAX');
 /*!40000 ALTER TABLE `suat_chieu` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -574,4 +574,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-11-04 13:15:47
+-- Dump completed on 2018-11-04 21:09:51

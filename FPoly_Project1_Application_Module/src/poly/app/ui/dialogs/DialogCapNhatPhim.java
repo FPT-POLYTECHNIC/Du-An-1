@@ -5,14 +5,13 @@
  */
 package poly.app.ui.dialogs;
 
+import static java.awt.image.ImageObserver.HEIGHT;
 import java.util.Date;
-import poly.app.core.daoimpl.LoaiPhimDaoImpl;
-import poly.app.core.entities.LoaiPhim;
-import poly.app.core.entities.NguoiDung;
 import java.util.List;
-import java.util.Map;
 import javax.swing.DefaultComboBoxModel;
+import poly.app.core.daoimpl.LoaiPhimDaoImpl;
 import poly.app.core.daoimpl.PhimDaoImpl;
+import poly.app.core.entities.LoaiPhim;
 import poly.app.core.entities.Phim;
 import poly.app.core.helper.DialogHelper;
 
@@ -20,15 +19,22 @@ import poly.app.core.helper.DialogHelper;
  *
  * @author vothanhtai
  */
-public class DialogThemPhim extends javax.swing.JDialog {
-    
+public class DialogCapNhatPhim extends javax.swing.JDialog {
+
+    Phim phim;
     /**
      * Creates new form DialogThemNhanVien
      */
-    public DialogThemPhim(java.awt.Frame parent, boolean modal) {
+    public DialogCapNhatPhim(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
         setLocationRelativeTo(null);
+    }
+    
+    public DialogCapNhatPhim(java.awt.Frame parent, boolean modal, String phimId) {
+        this(parent, modal);
+        
+        phim = new PhimDaoImpl().getById(phimId);
     }
     
     private void loadLoaiPhimToCombobox(){
@@ -40,11 +46,24 @@ public class DialogThemPhim extends javax.swing.JDialog {
         modelCboTheLoai.setSelectedItem(listLoaiPhim.get(0));
     }
     
+    private void setModelToInput(){
+//        Do du lieu len input
+        txtTen.setText(phim.getTen());
+        spnThoiLuong.setValue(phim.getThoiLuong());
+        spnGioiHanTuoi.setValue(phim.getGioiHanTuoi());
+        dcNgayChieu.setDate(phim.getNgayCongChieu());
+        cboNgonNgu.setSelectedItem(phim.getNgonNgu());
+        cboNSX.setSelectedItem(phim.getNhaSanXuat());
+        txtDienVien.setText(phim.getDienVien());
+        cboQuocGia.setSelectedItem(phim.getQuocGia());
+        cboTrangThai.setSelectedItem(phim.getTrangThai());
+        cboTheLoai.getModel().setSelectedItem(phim.getLoaiPhim());
+        txtTomTat.setText("");
+    }
+    
     private Phim getModelFromInput(){
 //        code lay phim tu input
-        
-        Phim phim = new Phim();
-        phim.setId("PH"+new Date().getTime());
+//        set lai gia tri moi cho phim
         phim.setTen(txtTen.getText());
         phim.setThoiLuong((int)spnThoiLuong.getValue());
         phim.setGioiHanTuoi((int)spnGioiHanTuoi.getValue());
@@ -59,27 +78,14 @@ public class DialogThemPhim extends javax.swing.JDialog {
         return phim;
     }
     
-    private void clearForm() {
-        txtTen.setText("");
-        spnThoiLuong.setValue(0);
-        spnGioiHanTuoi.setValue(0);
-        dcNgayChieu.setDate(new Date());
-        cboNgonNgu.setSelectedIndex(0);
-        cboNSX.setSelectedIndex(0);
-        txtDienVien.setText("");
-        cboQuocGia.setSelectedIndex(0);
-        cboTrangThai.setSelectedIndex(0);
-        cboTheLoai.setSelectedIndex(0);
-        txtTomTat.setText("");
-    }
-    
-    private boolean insertModelToDatabase(){
+    private boolean updateModelToDatabase(){
 //        goi ham getModelFromInput
-        Phim phim = getModelFromInput();
         try {
-            return new PhimDaoImpl().insert(phim);
+            Phim phim = getModelFromInput();
+            
+            return new PhimDaoImpl().update(phim);
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println(e);
         }
         return false;
     }
@@ -158,6 +164,11 @@ public class DialogThemPhim extends javax.swing.JDialog {
         });
 
         btnHuy.setText("Huỷ");
+        btnHuy.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnHuyActionPerformed(evt);
+            }
+        });
 
         jLabel11.setText("Thể loại");
 
@@ -168,6 +179,11 @@ public class DialogThemPhim extends javax.swing.JDialog {
         jScrollPane1.setViewportView(txtTomTat);
 
         cboNSX.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Hãng phim A", "Hãng phim B" }));
+        cboNSX.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cboNSXActionPerformed(evt);
+            }
+        });
 
         txtDienVien.setColumns(10);
         txtDienVien.setRows(5);
@@ -269,9 +285,9 @@ public class DialogThemPhim extends javax.swing.JDialog {
                             .addComponent(jLabel11)
                             .addComponent(cboTheLoai, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel5)
-                            .addComponent(cboNgonNgu, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(cboNgonNgu, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel9)
@@ -303,15 +319,25 @@ public class DialogThemPhim extends javax.swing.JDialog {
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
         loadLoaiPhimToCombobox();
+        setModelToInput();
     }//GEN-LAST:event_formWindowOpened
 
     private void btnLuuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLuuActionPerformed
-        if (insertModelToDatabase()){
-            DialogHelper.message(null, "Thêm phim thành công ^^", HEIGHT);
+        if (updateModelToDatabase()){
+            DialogHelper.message(null, "Sửa phim thành công ^^", HEIGHT);
         }else{
-            DialogHelper.message(null, "Thêm phim thất bại !!", HEIGHT);
+            DialogHelper.message(null, "Sửa phim thất bại !!", HEIGHT);
         }
     }//GEN-LAST:event_btnLuuActionPerformed
+
+    private void cboNSXActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cboNSXActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_cboNSXActionPerformed
+
+    private void btnHuyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHuyActionPerformed
+        // TODO add your handling code here:
+        this.setVisible(false);
+    }//GEN-LAST:event_btnHuyActionPerformed
 
     /**
      * @param args the command line arguments
@@ -330,14 +356,26 @@ public class DialogThemPhim extends javax.swing.JDialog {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(DialogThemPhim.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(DialogCapNhatPhim.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(DialogThemPhim.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(DialogCapNhatPhim.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(DialogThemPhim.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(DialogCapNhatPhim.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(DialogThemPhim.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(DialogCapNhatPhim.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
         //</editor-fold>
         //</editor-fold>
         //</editor-fold>
@@ -346,7 +384,7 @@ public class DialogThemPhim extends javax.swing.JDialog {
         /* Create and display the dialog */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                DialogThemPhim dialog = new DialogThemPhim(new javax.swing.JFrame(), true);
+                DialogCapNhatPhim dialog = new DialogCapNhatPhim(new javax.swing.JFrame(), true);
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                     @Override
                     public void windowClosing(java.awt.event.WindowEvent e) {

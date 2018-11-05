@@ -9,6 +9,7 @@ import java.util.List;
 import javax.swing.table.DefaultTableModel;
 import poly.app.core.daoimpl.PhimDaoImpl;
 import poly.app.core.entities.Phim;
+import poly.app.ui.dialogs.DialogCapNhatPhim;
 import poly.app.ui.dialogs.DialogThemPhim;
 import poly.app.ui.utils.TableRendererUtil;
 
@@ -22,7 +23,7 @@ public class FrameQLPhim extends javax.swing.JFrame {
      * Creates new form FrameQLNhanVien
      */
     
-    List<Phim> listPhim = new PhimDaoImpl().getAll();
+    List<Phim> listPhim;
     
     public FrameQLPhim() {
         initComponents();
@@ -100,6 +101,11 @@ public class FrameQLPhim extends javax.swing.JFrame {
 
         btnSua.setFont(new java.awt.Font("Helvetica Neue", 0, 14)); // NOI18N
         btnSua.setText("Sửa");
+        btnSua.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSuaActionPerformed(evt);
+            }
+        });
 
         jButton1.setText("Xoá");
 
@@ -144,6 +150,11 @@ public class FrameQLPhim extends javax.swing.JFrame {
 
             public Class getColumnClass(int columnIndex) {
                 return types [columnIndex];
+            }
+        });
+        tblPhim.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tblPhimMouseClicked(evt);
             }
         });
         jScrollPane1.setViewportView(tblPhim);
@@ -245,11 +256,26 @@ public class FrameQLPhim extends javax.swing.JFrame {
 
     private void btnThemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnThemActionPerformed
         new DialogThemPhim(this, true).setVisible(true);
+        loadDataToTable();
     }//GEN-LAST:event_btnThemActionPerformed
+
+    private void tblPhimMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblPhimMouseClicked
+        if ( evt.getClickCount() >= 2 ) {
+            int index = tblPhim.getSelectedRow();
+            String id = tblPhim.getValueAt(index, 0) + "";
+            new DialogCapNhatPhim(this, true, id).setVisible(true);
+            loadDataToTable();
+        }
+    }//GEN-LAST:event_tblPhimMouseClicked
+
+    private void btnSuaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSuaActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnSuaActionPerformed
 
     
     
     public void loadDataToTable(){
+        listPhim = new PhimDaoImpl().getAll();
         DefaultTableModel modelTable = (DefaultTableModel) tblPhim.getModel();
         modelTable.setRowCount(0);
         for ( Phim phim : listPhim ) {

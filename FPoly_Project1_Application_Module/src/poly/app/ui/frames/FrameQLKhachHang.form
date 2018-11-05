@@ -231,6 +231,9 @@
                           </Table>
                         </Property>
                       </Properties>
+                      <Events>
+                        <EventHandler event="mouseReleased" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="tblKhachHangMouseReleased"/>
+                      </Events>
                     </Component>
                   </SubComponents>
                 </Container>

@@ -140,6 +140,11 @@ public class FrameQLKhachHang extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
+        tblKhachHang.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                tblKhachHangMouseReleased(evt);
+            }
+        });
         jScrollPane1.setViewportView(tblKhachHang);
 
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
@@ -236,6 +241,10 @@ public class FrameQLKhachHang extends javax.swing.JFrame {
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
         loadDataToTable();
     }//GEN-LAST:event_formWindowOpened
+
+    private void tblKhachHangMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblKhachHangMouseReleased
+        // TODO add your handling code here:
+    }//GEN-LAST:event_tblKhachHangMouseReleased
 
     
     

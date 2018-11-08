@@ -5,8 +5,13 @@
  */
 package poly.app.ui.dialogs;
 
+import java.util.List;
+import javax.swing.DefaultComboBoxModel;
 import poly.app.core.daoimpl.DoAnDaoImpl;
+import poly.app.core.daoimpl.LoaiDoAnDaoImpl;
 import poly.app.core.entities.DoAn;
+import poly.app.core.entities.LoaiDoAn;
+import poly.app.core.helper.DialogHelper;
 
 /**
  *
@@ -22,34 +27,61 @@ public class DialogCapNhatDoAn extends javax.swing.JDialog {
         super(parent, modal);
         initComponents();
         setLocationRelativeTo(null);
+        
     }
     
-    public DialogCapNhatDoAn(java.awt.Frame parent, boolean modal, String doAnId) {
+    public DialogCapNhatDoAn(java.awt.Frame parent, boolean modal, DoAn doAn) {
         super(parent, modal);
         initComponents();
         setLocationRelativeTo(null);
-        
-        doAn = new DoAnDaoImpl().getById(doAnId);
+        this.doAn = doAn;
     }
     
     private void loadLoaiDoAnToCombobox(){
-
+        DefaultComboBoxModel modelComboBox = (DefaultComboBoxModel) cboLoaiDoAn.getModel();
+        modelComboBox.removeAllElements();
+        LoaiDoAnDaoImpl lda = new LoaiDoAnDaoImpl();
+        List<LoaiDoAn> listLDA = lda.getAll();
+        for(LoaiDoAn fill : listLDA)
+        {
+            modelComboBox.addElement(fill);
+        }
     }
     
     private void setModelToInput(){
 //        Do du lieu len input
+        txtTen.setText(doAn.getTen());
+        cboLoaiDoAn.getModel().setSelectedItem(doAn.getLoaiDoAn());
+        if(doAn.isDangBan()==true)
+        {
+            cboTrangThai.setSelectedIndex(0);
+        }
+        else
+        {
+            cboTrangThai.setSelectedIndex(1);
+        }
+        
     }
     
     private DoAn getModelFromInput(){
 //        code lay do an tu input
-
-        return null;
+        doAn.setTen(txtTen.getText());
+        doAn.setLoaiDoAn((LoaiDoAn) cboLoaiDoAn.getSelectedItem());
+        if (cboTrangThai.getSelectedItem().toString().equals("Đang được bán")) {
+            doAn.setDangBan(true);
+        } else {
+            doAn.setDangBan(false);
+        }
+        
+        return doAn;
     }
     
     private boolean updateModelToDatabase(){
 //        goi ham getModelFromInput
         try {
-
+            DoAnDaoImpl updateDoAn = new DoAnDaoImpl();
+            updateDoAn.update(getModelFromInput());
+            return true;
         } catch (Exception e) {
         }
         return false;
@@ -97,6 +129,11 @@ public class DialogCapNhatDoAn extends javax.swing.JDialog {
         });
 
         btnHuy.setText("Huỷ");
+        btnHuy.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnHuyActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -162,15 +199,21 @@ public class DialogCapNhatDoAn extends javax.swing.JDialog {
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
         loadLoaiDoAnToCombobox();
+        this.setModelToInput();
     }//GEN-LAST:event_formWindowOpened
 
     private void btnLuuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLuuActionPerformed
         if (updateModelToDatabase()){
-
+            DialogHelper.message(this, "Cập nhật dữ liệu thành công !", DialogHelper.INFORMATION_MESSAGE);
+            this.dispose();
         }else{
-            
+            DialogHelper.message(this, "Cập nhật dữ liệu thất bại ! ", DialogHelper.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_btnLuuActionPerformed
+
+    private void btnHuyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHuyActionPerformed
+        this.dispose();
+    }//GEN-LAST:event_btnHuyActionPerformed
 
     /**
      * @param args the command line arguments

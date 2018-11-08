@@ -5,8 +5,11 @@
  */
 package poly.app.ui.dialogs;
 
+import javax.swing.ButtonGroup;
 import poly.app.core.daoimpl.KhachHangDaoImpl;
 import poly.app.core.entities.KhachHang;
+import poly.app.core.helper.DialogHelper;
+import poly.app.core.utils.StringUtil;
 
 /**
  *
@@ -15,6 +18,9 @@ import poly.app.core.entities.KhachHang;
 public class DialogCapNhatKhachHang extends javax.swing.JDialog {
 
     KhachHang khachHang;
+    ButtonGroup btngr = new ButtonGroup();
+    String khID;
+
     /**
      * Creates new form DialogThemNhanVien
      */
@@ -22,30 +28,48 @@ public class DialogCapNhatKhachHang extends javax.swing.JDialog {
         super(parent, modal);
         initComponents();
         setLocationRelativeTo(null);
+        btngr.add(rdoNam);
+        btngr.add(rdoNu);
     }
-    
+
     public DialogCapNhatKhachHang(java.awt.Frame parent, boolean modal, String khachHangId) {
         this(parent, modal);
-        
+        this.khID = khachHangId;
         khachHang = new KhachHangDaoImpl().getById(khachHangId);
     }
-    
-    private void setModelToInput(){
-//        Do du lieu len input
-    }
-    
-    private KhachHang getModelFromInput(){
-//        code lay phim tu input
-//        set lai gia tri moi cho khach hang
 
-        return null;
+    private void setModelToInput() {
+        txtHoTen.setText(khachHang.getHoTen());
+        txtDiaChi.setText(khachHang.getDiaChi());
+        txtCMND.setText(khachHang.getSoCmnd());
+        dcNgayVaoLam.setDate(khachHang.getNgayDangKy());
+        txtSoDienThoai.setText(khachHang.getSoDienThoai());
+        txtEmail.setText(khachHang.getEmail());
+        dcNgaySinh.setDate(khachHang.getNgaySinh());
+        rdoNu.setSelected(!khachHang.isGioiTinhNam());
     }
-    
-    private boolean updateModelToDatabase(){
-//        goi ham getModelFromInput
+
+    private KhachHang getModelFromInput() {
+        khachHang.setHoTen(this.txtHoTen.getText());
+        khachHang.setMatKhau(StringUtil.randomString());
+        khachHang.setDiaChi(this.txtDiaChi.getText());
+        khachHang.setSoCmnd(this.txtCMND.getText());
+        khachHang.setNgayDangKy(this.dcNgayVaoLam.getDate());
+        khachHang.setSoDienThoai(this.txtSoDienThoai.getText());
+        khachHang.setGioiTinh(this.rdoNam.isSelected());
+        khachHang.setEmail(this.txtEmail.getText());
+        khachHang.setNgaySinh(this.dcNgaySinh.getDate());
+
+        return khachHang;
+    }
+
+    private boolean updateModelToDatabase() {
         try {
-
+            KhachHangDaoImpl khdao = new KhachHangDaoImpl();
+            khdao.update(getModelFromInput());
+            return true;
         } catch (Exception e) {
+            e.printStackTrace();
         }
         return false;
     }
@@ -101,9 +125,12 @@ public class DialogCapNhatKhachHang extends javax.swing.JDialog {
 
         jLabel9.setText("Giới tính");
 
+        rdoNam.setSelected(true);
         rdoNam.setText("Nam");
 
         rdoNu.setText("Nữ");
+
+        dcNgayVaoLam.setDateFormatString("dd-MM-yyyy");
 
         btnLuu.setText("Lưu");
         btnLuu.addActionListener(new java.awt.event.ActionListener() {
@@ -113,8 +140,15 @@ public class DialogCapNhatKhachHang extends javax.swing.JDialog {
         });
 
         btnHuy.setText("Huỷ");
+        btnHuy.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnHuyActionPerformed(evt);
+            }
+        });
 
         jLabel11.setText("Ngày sinh");
+
+        dcNgaySinh.setDateFormatString("dd-MM-yyyy");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -210,16 +244,22 @@ public class DialogCapNhatKhachHang extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
-
+        this.setModelToInput();
     }//GEN-LAST:event_formWindowOpened
 
     private void btnLuuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLuuActionPerformed
-        if (updateModelToDatabase()){
-            
-        }else{
-            
+        if (updateModelToDatabase()) {
+            DialogHelper.message(this, "Cập nhật thành công", DialogHelper.INFORMATION_MESSAGE);
+            this.dispose();
+        } else {
+            DialogHelper.message(this, "Cập nhật thất bại", DialogHelper.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_btnLuuActionPerformed
+
+    private void btnHuyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHuyActionPerformed
+        // TODO add your handling code here:
+        this.dispose();
+    }//GEN-LAST:event_btnHuyActionPerformed
 
     /**
      * @param args the command line arguments

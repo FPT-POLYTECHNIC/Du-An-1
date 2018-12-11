@@ -11,6 +11,7 @@ import poly.app.core.daoimpl.VaiTroDaoImpl;
 import poly.app.core.entities.NguoiDung;
 import poly.app.core.entities.VaiTro;
 import poly.app.core.helper.DialogHelper;
+import poly.app.ui.utils.ValidationUtil;
 
 /**
  *
@@ -82,6 +83,47 @@ public class DialogCapNhatNguoiDung extends javax.swing.JDialog {
         return false;
     }
 
+    private boolean checkInput() {
+        if (ValidationUtil.isEmpty(txtHoTen.getText())) {
+            DialogHelper.message(this, "Không được bỏ trống họ và tên", DialogHelper.ERROR_MESSAGE);
+            return false;
+        } else if (ValidationUtil.isLenghtEnought(txtHoTen.getText(), 50)) {
+            DialogHelper.message(this, "Họ tên không được quá 50 ký tự", DialogHelper.ERROR_MESSAGE);
+            return false;
+        } else if (ValidationUtil.isEmpty(txtCMND.getText())) {
+            DialogHelper.message(this, "Không được bỏ bỏ trống CMND", DialogHelper.ERROR_MESSAGE);
+            return false;
+        } else if (!ValidationUtil.isLenghtEqual(txtCMND.getText(), 9) && !ValidationUtil.isLenghtEqual(txtCMND.getText(), 12)) {
+            DialogHelper.message(this, "CMND chỉ có 9 hoặc 12 số ", DialogHelper.ERROR_MESSAGE);
+            return false;
+        } else if (ValidationUtil.isEmpty(txtSoDienThoai.getText())) {
+            DialogHelper.message(this, "Không được bỏ bỏ trống số điện thoại", DialogHelper.ERROR_MESSAGE);
+            return false;
+        } else if (!ValidationUtil.isLenghtEqual(txtSoDienThoai.getText(), 10)) {
+            DialogHelper.message(this, "Số điện thoại phải chỉ bằng 10", DialogHelper.ERROR_MESSAGE);
+            return false;
+
+        } else if (!txtSoDienThoai.getText().startsWith("0")) {
+            DialogHelper.message(this, "Số điện thoại phải bắt đầu bằng 0", DialogHelper.ERROR_MESSAGE);
+            return false;
+        } else if (ValidationUtil.isEmpty(txtEmail.getText())) {
+            DialogHelper.message(this, "Không được bỏ bỏ trống Email", DialogHelper.ERROR_MESSAGE);
+            return false;
+        } else if (!ValidationUtil.isValidEmail(txtEmail.getText())) {
+            DialogHelper.message(this, "Định dạng Email sai", DialogHelper.ERROR_MESSAGE);
+            return false;
+        } else if (ValidationUtil.isEmpty(txtDiaChi.getText())) {
+            DialogHelper.message(this, "Không được bỏ bỏ trống Địa chỉ", DialogHelper.ERROR_MESSAGE);
+            return false;
+        } else if (dcNgayVaoLam.getDate() == null) {
+            DialogHelper.message(this, "Không được bỏ trống ngày vào làm", DialogHelper.ERROR_MESSAGE);
+            return false;
+        } else {
+            return true;
+        }
+
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -124,7 +166,6 @@ public class DialogCapNhatNguoiDung extends javax.swing.JDialog {
         btnHuy = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setResizable(false);
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowOpened(java.awt.event.WindowEvent evt) {
                 formWindowOpened(evt);
@@ -137,6 +178,11 @@ public class DialogCapNhatNguoiDung extends javax.swing.JDialog {
         jLabel9.setText("Giới tính");
 
         txtCMND.setFont(new java.awt.Font("Open Sans", 0, 14)); // NOI18N
+        txtCMND.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txtCMNDKeyTyped(evt);
+            }
+        });
 
         jLabel2.setFont(new java.awt.Font("Open Sans", 0, 14)); // NOI18N
         jLabel2.setText("CMND");
@@ -175,6 +221,11 @@ public class DialogCapNhatNguoiDung extends javax.swing.JDialog {
         );
 
         txtSoDienThoai.setFont(new java.awt.Font("Open Sans", 0, 14)); // NOI18N
+        txtSoDienThoai.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txtSoDienThoaiKeyTyped(evt);
+            }
+        });
 
         cboVaiTro.setFont(new java.awt.Font("Open Sans", 0, 14)); // NOI18N
 
@@ -187,6 +238,7 @@ public class DialogCapNhatNguoiDung extends javax.swing.JDialog {
 
         txtEmail.setFont(new java.awt.Font("Open Sans", 0, 14)); // NOI18N
 
+        buttonGroup1.add(rdoNu);
         rdoNu.setFont(new java.awt.Font("Open Sans", 0, 14)); // NOI18N
         rdoNu.setText("Nữ");
 
@@ -194,6 +246,7 @@ public class DialogCapNhatNguoiDung extends javax.swing.JDialog {
         jPanel4.setLayout(new java.awt.GridBagLayout());
 
         jLabel15.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(102, 102, 102)));
+        jLabel15.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         jLabel15.setOpaque(true);
         jLabel15.setPreferredSize(new java.awt.Dimension(136, 136));
         jPanel4.add(jLabel15, new java.awt.GridBagConstraints());
@@ -201,6 +254,7 @@ public class DialogCapNhatNguoiDung extends javax.swing.JDialog {
         jLabel4.setFont(new java.awt.Font("Open Sans", 0, 14)); // NOI18N
         jLabel4.setText("Email");
 
+        buttonGroup1.add(rdoNam);
         rdoNam.setFont(new java.awt.Font("Open Sans", 0, 14)); // NOI18N
         rdoNam.setSelected(true);
         rdoNam.setText("Nam");
@@ -226,6 +280,16 @@ public class DialogCapNhatNguoiDung extends javax.swing.JDialog {
         jLabel16.setText("Ngày vào làm");
 
         txtHoTen.setFont(new java.awt.Font("Open Sans", 0, 14)); // NOI18N
+        txtHoTen.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtHoTenActionPerformed(evt);
+            }
+        });
+        txtHoTen.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txtHoTenKeyTyped(evt);
+            }
+        });
 
         jPanel5.setLayout(new java.awt.GridBagLayout());
 
@@ -376,17 +440,41 @@ public class DialogCapNhatNguoiDung extends javax.swing.JDialog {
     }//GEN-LAST:event_formWindowOpened
 
     private void btnLuuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLuuActionPerformed
-        if (updateModelToDatabase()) {
-            DialogHelper.message(this, "Cập nhật dữ liệu thành công!", DialogHelper.INFORMATION_MESSAGE);
-            this.dispose();
-        } else {
-            DialogHelper.message(this, "Cập nhật dữ liệu thất bại! ", DialogHelper.ERROR_MESSAGE);
+        if (checkInput()) {
+            if (updateModelToDatabase()) {
+                DialogHelper.message(this, "Cập nhật dữ liệu thành công!", DialogHelper.INFORMATION_MESSAGE);
+                this.dispose();
+            } else {
+                DialogHelper.message(this, "Cập nhật dữ liệu dữ liệu thất bại!", DialogHelper.ERROR_MESSAGE);
+            }
         }
     }//GEN-LAST:event_btnLuuActionPerformed
 
     private void btnHuyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHuyActionPerformed
         this.dispose();
     }//GEN-LAST:event_btnHuyActionPerformed
+
+    private void txtCMNDKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtCMNDKeyTyped
+        if (String.valueOf(evt.getKeyChar()).matches("\\D") || txtCMND.getText().length() == 12) {
+            evt.consume();
+        }
+    }//GEN-LAST:event_txtCMNDKeyTyped
+
+    private void txtSoDienThoaiKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtSoDienThoaiKeyTyped
+        if (String.valueOf(evt.getKeyChar()).matches("\\D") || txtSoDienThoai.getText().length() == 10) {
+            evt.consume();
+        }
+    }//GEN-LAST:event_txtSoDienThoaiKeyTyped
+
+    private void txtHoTenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtHoTenActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtHoTenActionPerformed
+
+    private void txtHoTenKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtHoTenKeyTyped
+        if (txtHoTen.getText().length()==50) {
+            evt.consume();
+        }
+    }//GEN-LAST:event_txtHoTenKeyTyped
 
     /**
      * @param args the command line arguments

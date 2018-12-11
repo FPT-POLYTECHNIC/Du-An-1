@@ -8,7 +8,6 @@ package poly.app.ui.frames.quanly;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -25,6 +24,7 @@ import poly.app.core.entities.DoAn;
 import poly.app.core.entities.DoAnChiTiet;
 import poly.app.core.entities.LoaiDoAn;
 import poly.app.core.helper.DialogHelper;
+import poly.app.ui.custom.ClosableTabbedPane;
 import poly.app.ui.dialogs.capnhat.DialogCapNhatDoAn;
 import poly.app.ui.dialogs.capnhat.DialogCapNhatDoAnChiTiet;
 import poly.app.ui.dialogs.them.DialogThemDoAn;
@@ -35,8 +35,8 @@ import poly.app.ui.utils.TableRendererUtil;
  *
  * @author vothanhtai
  */
-public class FrameQLDoAn extends javax.swing.JFrame {
-
+public class FrameQLDoAn extends javax.swing.JFrame  implements ClosableTabbedPane.ClosableTabbedPaneMethod{
+    
     List<DoAn> listDoAn = new ArrayList<>();
     List<DoAnChiTiet> listDoAnCT = new ArrayList<>();
     Map<String, DoAn> mapDoAn = new TreeMap<>();
@@ -53,8 +53,9 @@ public class FrameQLDoAn extends javax.swing.JFrame {
         setTitle("Quản lý đồ ăn");
         this.setRadio();
         reRenderUI();
+        this.loadDataToComboBox();
     }
-
+    
     public void setRadio() {
         btngr.add(rdoDangDuocBan);
         btngr.add(rdoDaNgungBan);
@@ -62,24 +63,50 @@ public class FrameQLDoAn extends javax.swing.JFrame {
         rdoDaNgungBan.setEnabled(false);
         cboLoaiDoAn.setEnabled(false);
     }
-
+    
     private void reRenderUI() {
         //        Render lại giao diện cho table
         TableRendererUtil tblRenderer = new TableRendererUtil(tblDoAn);
         tblRenderer.setCellEditable(false);
         tblRenderer.changeHeaderStyle();
+        
         tblRenderer.setColoumnWidthByPersent(0, 5);
+        tblRenderer.setColoumnWidthByPersent(1, 10);
+        tblRenderer.setColoumnWidthByPersent(2, 30);
+        tblRenderer.setColumnAlignment(0, TableRendererUtil.CELL_ALIGN_LEFT);
         tblRenderer.setColumnAlignment(1, TableRendererUtil.CELL_ALIGN_CENTER);
-
+        
         tblRenderer = new TableRendererUtil(tblDoAnChiTiet);
         tblRenderer.setCellEditable(false);
         tblRenderer.changeHeaderStyle();
         tblRenderer.setColumnAlignment(1, TableRendererUtil.CELL_ALIGN_CENTER);
     }
     
-    public JPanel getMainPanel(){
-        formWindowOpened(null);
+    public JPanel getMainPanel() {
+        synchronizedData();
         return this.pnlMain;
+    }
+    
+    public void synchronizedData(){
+        resetSearchForm();
+        this.loadDataToTable();
+    }
+    
+    private void resetSearchForm() {
+        chkTheoTen.setSelected(true);
+        txtTraCuuDoAn.setEnabled(true);
+        txtTraCuuDoAn.setText("");
+        
+        chkTheoTrangThai.setSelected(false);
+        rdoDaNgungBan.setEnabled(false);
+        rdoDangDuocBan.setEnabled(false);
+        rdoDangDuocBan.setSelected(true);
+        
+        chkTheoLoaiDoAn.setSelected(false);
+        cboLoaiDoAn.setSelectedIndex(0);
+        cboLoaiDoAn.setEnabled(false);
+        
+        ((DefaultTableModel)tblDoAnChiTiet.getModel()).setRowCount(0);
     }
 
     /**
@@ -90,6 +117,7 @@ public class FrameQLDoAn extends javax.swing.JFrame {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        java.awt.GridBagConstraints gridBagConstraints;
 
         pnlMain = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
@@ -178,9 +206,9 @@ public class FrameQLDoAn extends javax.swing.JFrame {
 
         cboLoaiDoAn.setFont(new java.awt.Font("Open Sans", 0, 14)); // NOI18N
         cboLoaiDoAn.setEnabled(false);
-        cboLoaiDoAn.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cboLoaiDoAnActionPerformed(evt);
+        cboLoaiDoAn.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                cboLoaiDoAnItemStateChanged(evt);
             }
         });
 
@@ -201,18 +229,18 @@ public class FrameQLDoAn extends javax.swing.JFrame {
                             .addComponent(chkTheoLoaiDoAn)
                             .addComponent(rdoDangDuocBan)
                             .addComponent(rdoDaNgungBan))))
-                .addGap(0, 0, Short.MAX_VALUE))
+                .addGap(0, 125, Short.MAX_VALUE))
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGap(10, 10, 10)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(cboLoaiDoAn, javax.swing.GroupLayout.PREFERRED_SIZE, 230, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(txtTraCuuDoAn, javax.swing.GroupLayout.PREFERRED_SIZE, 230, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(10, Short.MAX_VALUE))
+                    .addComponent(txtTraCuuDoAn)
+                    .addComponent(cboLoaiDoAn, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(10, 10, 10))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(16, 16, 16)
+                .addGap(15, 15, 15)
                 .addComponent(jLabel1)
                 .addGap(22, 22, 22)
                 .addComponent(chkTheoTen)
@@ -228,14 +256,14 @@ public class FrameQLDoAn extends javax.swing.JFrame {
                 .addComponent(chkTheoLoaiDoAn)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(cboLoaiDoAn, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(236, Short.MAX_VALUE))
+                .addContainerGap(151, Short.MAX_VALUE))
         );
 
         jPanel3.setBackground(new java.awt.Color(255, 255, 255));
 
         jPanel4.setOpaque(false);
 
-        btnThem.setFont(new java.awt.Font("Helvetica Neue", 0, 14)); // NOI18N
+        btnThem.setFont(new java.awt.Font("Open Sans", 0, 14)); // NOI18N
         btnThem.setText("Thêm đồ ăn");
         btnThem.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         btnThem.addActionListener(new java.awt.event.ActionListener() {
@@ -244,7 +272,7 @@ public class FrameQLDoAn extends javax.swing.JFrame {
             }
         });
 
-        btnSua.setFont(new java.awt.Font("Helvetica Neue", 0, 14)); // NOI18N
+        btnSua.setFont(new java.awt.Font("Open Sans", 0, 14)); // NOI18N
         btnSua.setText("Cập nhật đồ ăn");
         btnSua.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         btnSua.addActionListener(new java.awt.event.ActionListener() {
@@ -253,6 +281,7 @@ public class FrameQLDoAn extends javax.swing.JFrame {
             }
         });
 
+        btnThemKichCo.setFont(new java.awt.Font("Open Sans", 0, 14)); // NOI18N
         btnThemKichCo.setText("Thêm kích cỡ");
         btnThemKichCo.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         btnThemKichCo.addActionListener(new java.awt.event.ActionListener() {
@@ -261,7 +290,7 @@ public class FrameQLDoAn extends javax.swing.JFrame {
             }
         });
 
-        btnSuaKichCo.setFont(new java.awt.Font("Helvetica Neue", 0, 14)); // NOI18N
+        btnSuaKichCo.setFont(new java.awt.Font("Open Sans", 0, 14)); // NOI18N
         btnSuaKichCo.setText("Cập nhật kích cỡ");
         btnSuaKichCo.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         btnSuaKichCo.addActionListener(new java.awt.event.ActionListener() {
@@ -279,7 +308,7 @@ public class FrameQLDoAn extends javax.swing.JFrame {
                 .addComponent(btnThem)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnSua)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 143, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(btnThemKichCo)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnSuaKichCo)
@@ -288,18 +317,21 @@ public class FrameQLDoAn extends javax.swing.JFrame {
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
-                .addGap(16, 16, 16)
+                .addGap(15, 15, 15)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnThem, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnSua, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnThemKichCo, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnSuaKichCo, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(16, Short.MAX_VALUE))
+                .addContainerGap(15, Short.MAX_VALUE))
         );
 
         jPanel5.setOpaque(false);
+        jPanel5.setLayout(new java.awt.GridBagLayout());
 
-        tblDoAn.setFont(new java.awt.Font("Open Sans", 0, 13)); // NOI18N
+        jScrollPane1.setPreferredSize(new java.awt.Dimension(0, 0));
+
+        tblDoAn.setFont(new java.awt.Font("Open Sans", 0, 14)); // NOI18N
         tblDoAn.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
@@ -324,10 +356,11 @@ public class FrameQLDoAn extends javax.swing.JFrame {
             }
         });
         tblDoAn.setGridColor(new java.awt.Color(238, 238, 238));
-        tblDoAn.setRowHeight(20);
+        tblDoAn.setRowHeight(22);
         tblDoAn.setSelectionBackground(new java.awt.Color(96, 116, 129));
         tblDoAn.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        tblDoAn.setShowGrid(false);
+        tblDoAn.setShowHorizontalLines(false);
+        tblDoAn.setShowVerticalLines(false);
         tblDoAn.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 tblDoAnMouseClicked(evt);
@@ -335,7 +368,18 @@ public class FrameQLDoAn extends javax.swing.JFrame {
         });
         jScrollPane1.setViewportView(tblDoAn);
 
-        tblDoAnChiTiet.setFont(new java.awt.Font("Open Sans", 0, 13)); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 0.6;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 10, 10, 0);
+        jPanel5.add(jScrollPane1, gridBagConstraints);
+
+        jScrollPane2.setPreferredSize(new java.awt.Dimension(0, 0));
+
+        tblDoAnChiTiet.setFont(new java.awt.Font("Open Sans", 0, 14)); // NOI18N
         tblDoAnChiTiet.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
@@ -353,10 +397,11 @@ public class FrameQLDoAn extends javax.swing.JFrame {
             }
         });
         tblDoAnChiTiet.setGridColor(new java.awt.Color(238, 238, 238));
-        tblDoAnChiTiet.setRowHeight(20);
+        tblDoAnChiTiet.setRowHeight(22);
         tblDoAnChiTiet.setSelectionBackground(new java.awt.Color(96, 116, 129));
         tblDoAnChiTiet.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        tblDoAnChiTiet.setShowGrid(false);
+        tblDoAnChiTiet.setShowHorizontalLines(false);
+        tblDoAnChiTiet.setShowVerticalLines(false);
         tblDoAnChiTiet.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 tblDoAnChiTietMouseClicked(evt);
@@ -364,26 +409,14 @@ public class FrameQLDoAn extends javax.swing.JFrame {
         });
         jScrollPane2.setViewportView(tblDoAnChiTiet);
 
-        javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
-        jPanel5.setLayout(jPanel5Layout);
-        jPanel5Layout.setHorizontalGroup(
-            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
-                .addGap(10, 10, 10)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 356, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(10, 10, 10))
-        );
-        jPanel5Layout.setVerticalGroup(
-            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel5Layout.createSequentialGroup()
-                .addGap(0, 0, 0)
-                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane2)
-                    .addComponent(jScrollPane1))
-                .addGap(10, 10, 10))
-        );
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 0.4;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 6, 10, 10);
+        jPanel5.add(jScrollPane2, gridBagConstraints);
 
         btnCollapse.setBackground(new java.awt.Color(52, 83, 104));
         btnCollapse.setFont(new java.awt.Font("Tahoma", 1, 15)); // NOI18N
@@ -460,18 +493,36 @@ public class FrameQLDoAn extends javax.swing.JFrame {
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
         this.loadDataToTable();
-        this.loadDataToComboBox();
     }//GEN-LAST:event_formWindowOpened
 
     private void btnThemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnThemActionPerformed
+        int beforeInsertSize = mapDoAn.size();
         this.insertDA();
+        this.loadDataToTable();
+        DefaultTableModel model = (DefaultTableModel) tblDoAnChiTiet.getModel();
+        model.setRowCount(0);
+        
+        if (beforeInsertSize != mapDoAn.size()) {
+            int lastIndex = tblDoAn.getRowCount() - 1;
+            tblDoAn.setRowSelectionInterval(lastIndex, lastIndex);
+        }
     }//GEN-LAST:event_btnThemActionPerformed
 
     private void tblDoAnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblDoAnMouseClicked
         if (tblDoAn.getSelectedRow() >= 0) {
             if (evt.getClickCount() >= 2) {
+                int index = tblDoAn.getSelectedRow();
+                String maDA = (String) tblDoAn.getValueAt(index, 1);
                 this.updateDA();
+                this.loadDataToTable();
                 this.searchDoAnByName();
+                for (int i = 0; i <= tblDoAn.getRowCount(); i++) {
+                    if (tblDoAn.getValueAt(i, 1).equals(maDA)) {
+                        tblDoAn.setRowSelectionInterval(i, i);
+                        break;
+                    }
+                }
+                this.loadDoAnChiTiet();
             }
             if (evt.getClickCount() == 1) {
                 this.loadDoAnChiTiet();
@@ -481,18 +532,38 @@ public class FrameQLDoAn extends javax.swing.JFrame {
     }//GEN-LAST:event_tblDoAnMouseClicked
 
     private void btnSuaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSuaActionPerformed
-        this.updateDA();
+        int index = tblDoAn.getSelectedRow();
+        if (tblDoAn.getSelectedRow() < 0) {
+            DialogHelper.message(this, "Chưa chọn đồ ăn để cập nhật !", DialogHelper.ERROR_MESSAGE);
+        } else {
+            String maDA = (String) tblDoAn.getValueAt(index, 1);
+            this.updateDA();
+            this.loadDataToTable();
+            this.searchDoAnByName();
+            for (int i = 0; i <= tblDoAn.getRowCount(); i++) {
+                if (tblDoAn.getValueAt(i, 1).equals(maDA)) {
+                    tblDoAn.setRowSelectionInterval(i, i);
+                    break;
+                }
+            }
+            this.loadDoAnChiTiet();
+        }
+
     }//GEN-LAST:event_btnSuaActionPerformed
 
     private void btnSuaKichCoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSuaKichCoActionPerformed
-        this.updateDACT();
+        if (tblDoAnChiTiet.getSelectedRow() < 0) {
+            DialogHelper.message(this, "Chưa chọn cỡ !", DialogHelper.ERROR_MESSAGE);
+        } else {
+            this.updateDACT();
+            this.loadDoAnChiTiet();
+        }
     }//GEN-LAST:event_btnSuaKichCoActionPerformed
 
     private void txtTraCuuDoAnKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtTraCuuDoAnKeyReleased
         if (txtTraCuuDoAn.getText().equals("")) {
             this.loadDataToTable();
         } else {
-//            this.searchDA();
             this.searchDoAnByName();
         }
     }//GEN-LAST:event_txtTraCuuDoAnKeyReleased
@@ -512,37 +583,41 @@ public class FrameQLDoAn extends javax.swing.JFrame {
     }//GEN-LAST:event_tblDoAnChiTietMouseClicked
 
     private void rdoDangDuocBanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rdoDangDuocBanActionPerformed
-
         this.searchDoAnByName();
     }//GEN-LAST:event_rdoDangDuocBanActionPerformed
 
     private void rdoDaNgungBanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rdoDaNgungBanActionPerformed
-
         this.searchDoAnByName();
     }//GEN-LAST:event_rdoDaNgungBanActionPerformed
 
     private void chkTheoTenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkTheoTenActionPerformed
-        txtTraCuuDoAn.setText("");
-        txtTraCuuDoAn.setEditable(chkTheoTen.isSelected());
+        txtTraCuuDoAn.setText(null);
+        this.checkBox();
         this.searchDoAnByName();
     }//GEN-LAST:event_chkTheoTenActionPerformed
 
     private void chkTheoTrangThaiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkTheoTrangThaiActionPerformed
-        rdoDangDuocBan.setEnabled(chkTheoTrangThai.isSelected());
-        rdoDaNgungBan.setEnabled(chkTheoTrangThai.isSelected());
+        this.checkBox();
         this.searchDoAnByName();
     }//GEN-LAST:event_chkTheoTrangThaiActionPerformed
 
     private void chkTheoLoaiDoAnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkTheoLoaiDoAnActionPerformed
-        cboLoaiDoAn.setEnabled(chkTheoLoaiDoAn.isSelected());
+        this.checkBox();
         this.searchDoAnByName();
     }//GEN-LAST:event_chkTheoLoaiDoAnActionPerformed
 
-    private void cboLoaiDoAnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cboLoaiDoAnActionPerformed
+    private void cboLoaiDoAnItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cboLoaiDoAnItemStateChanged
         this.searchDoAnByName();
-    }//GEN-LAST:event_cboLoaiDoAnActionPerformed
+    }//GEN-LAST:event_cboLoaiDoAnItemStateChanged
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    public void checkBox() {
+        txtTraCuuDoAn.setEnabled(chkTheoTen.isSelected());
+        rdoDangDuocBan.setEnabled(chkTheoTrangThai.isSelected());
+        rdoDaNgungBan.setEnabled(chkTheoTrangThai.isSelected());
+        cboLoaiDoAn.setEnabled(chkTheoLoaiDoAn.isSelected());
+    }
+    
     public void loadDataToTable() {
         DefaultTableModel modelDA = (DefaultTableModel) tblDoAn.getModel();
         modelDA.setRowCount(0);
@@ -561,20 +636,20 @@ public class FrameQLDoAn extends javax.swing.JFrame {
             mapDoAn.put(fill.getId(), fill);
         }
     }
-
+    
     public void loadDoAnChiTiet() {
         int index = tblDoAn.getSelectedRow();
         String id = (String) tblDoAn.getValueAt(index, 1);
         DefaultTableModel modelDACT = (DefaultTableModel) tblDoAnChiTiet.getModel();
         modelDACT.setRowCount(0);
-
+        
         DoAn doan = (DoAn) mapDoAn.get(id);
         Set<DoAnChiTiet> dact = doan.getDoAnChiTiets();
-
+        
         List<DoAnChiTiet> dactList = dact.stream()
                 .sorted(Comparator.comparing(DoAnChiTiet::getDonGia)) //comparator - how you want to sort it
                 .collect(Collectors.toList());
-
+        
         for (DoAnChiTiet fill : dactList) {
             Object[] record = new Object[]{
                 fill.getKichCoDoAn().getTen(),
@@ -584,30 +659,28 @@ public class FrameQLDoAn extends javax.swing.JFrame {
             modelDACT.addRow(record);
         }
     }
-
+    
     public void insertDA() {
         new DialogThemDoAn(this, true).setVisible(true);
-        this.loadDataToTable();
     }
-
+    
     public void updateDA() {
         int index = tblDoAn.getSelectedRow();
         if (tblDoAn.getSelectedRow() < 0) {
             DialogHelper.message(this, "Chưa chọn đồ ăn!", DialogHelper.ERROR_MESSAGE);
         }
         String idDA = (String) tblDoAn.getValueAt(index, 1);
-        new DialogCapNhatDoAn(this, true, mapDoAn.get(idDA)).setVisible(true);
+        DoAn doAn = mapDoAn.get(idDA);
+        new DialogCapNhatDoAn(this, true, doAn).setVisible(true);
         DefaultTableModel modelDACT = (DefaultTableModel) tblDoAnChiTiet.getModel();
         modelDACT.setRowCount(0);
-        this.loadDataToTable();
-
     }
-
+    
     public void searchDA() {
         DefaultTableModel modelDA = (DefaultTableModel) tblDoAn.getModel();
         modelDA.setRowCount(0);
         DoAnDaoImpl search = new DoAnDaoImpl();
-        Map<String, Object> mapSearch = new HashMap<String, Object>();
+        Map<String, Object> mapSearch = new TreeMap<String, Object>();
         mapSearch.put("ten", txtTraCuuDoAn.getText());
         List<DoAn> listSearch = search.getByProperties(mapSearch);
         for (DoAn fill : listSearch) {
@@ -620,19 +693,19 @@ public class FrameQLDoAn extends javax.swing.JFrame {
             modelDA.addRow(record);
         }
     }
-
+    
     public void searchDoAnByName() {
-        Map<String, DoAn> mapSearchDoAn = new HashMap<>();
+        Map<String, DoAn> mapSearchDoAn = new TreeMap<>();
         DefaultTableModel modelDA = (DefaultTableModel) tblDoAn.getModel();
         modelDA.setRowCount(0);
-
+        
         for (Entry<String, DoAn> entry : mapDoAn.entrySet()) {
             DoAn doAn = entry.getValue();
-
+            
             if (!entry.getValue().getTen().toLowerCase().contains(txtTraCuuDoAn.getText().toLowerCase())) {
                 continue;
             }
-
+            
             if (chkTheoTrangThai.isSelected()) {
                 if (rdoDangDuocBan.isSelected() && !doAn.isDangBan()) {
                     continue;
@@ -640,16 +713,16 @@ public class FrameQLDoAn extends javax.swing.JFrame {
                     continue;
                 }
             }
-
+            
             if (chkTheoLoaiDoAn.isSelected()) {
                 if (!((LoaiDoAn) cboLoaiDoAn.getModel().getSelectedItem()).getId().equals(doAn.getLoaiDoAn().getId())) {
                     continue;
                 }
             }
-
+            
             mapSearchDoAn.put(doAn.getId(), doAn);
         }
-
+        
         int i = 1;
         for (Entry<String, DoAn> entry : mapSearchDoAn.entrySet()) {
             DoAn doAn = entry.getValue();
@@ -663,7 +736,7 @@ public class FrameQLDoAn extends javax.swing.JFrame {
             modelDA.addRow(record);
         }
     }
-
+    
     public void insertDACT() {
         if (tblDoAn.getSelectedRow() < 0) {
             DialogHelper.message(this, "Chưa chọn đồ ăn!", DialogHelper.ERROR_MESSAGE);
@@ -672,39 +745,35 @@ public class FrameQLDoAn extends javax.swing.JFrame {
             DoAn doAn = (DoAn) mapDoAn.get(idDA);
             new DialogThemDoAnChiTiet(this, true, doAn).setVisible(true);
         }
-
+        
     }
-
+    
     public void updateDACT() {
-
         int indexDA = tblDoAn.getSelectedRow();
         String idDA = (String) tblDoAn.getValueAt(indexDA, 1);
         int indexDACT = tblDoAnChiTiet.getSelectedRow();
-
+        
         DoAn doan = (DoAn) mapDoAn.get(idDA);
-        Set<DoAnChiTiet> doanchitiet = doan.getDoAnChiTiets();
-
-        if (indexDACT < 0) {
-            DialogHelper.message(this, "Chưa chọn cỡ !", DialogHelper.ERROR_MESSAGE);
-        } else {
-            String dactTen = (String) tblDoAnChiTiet.getValueAt(indexDACT, 0);
-            for (DoAnChiTiet item : doanchitiet) {
-                if (item.getKichCoDoAn().getTen().equals(dactTen)) {
-                    new DialogCapNhatDoAnChiTiet(this, true, item).setVisible(true);
-                    break;
-                }
+        Set<DoAnChiTiet> setdoanchitiet = doan.getDoAnChiTiets();
+        
+        String dactTen = (String) tblDoAnChiTiet.getValueAt(indexDACT, 0);
+        
+        for (DoAnChiTiet item : setdoanchitiet) {
+            if (item.getKichCoDoAn().getTen().equals(dactTen)) {
+                DialogCapNhatDoAnChiTiet dialogCNDACT = new DialogCapNhatDoAnChiTiet(this, true, item, doan);
+                dialogCNDACT.setVisible(true);
+                break;
             }
         }
     }
-
+    
     public void loadDataToComboBox() {
         DefaultComboBoxModel modelCBB = (DefaultComboBoxModel) cboLoaiDoAn.getModel();
         LoaiDoAnDaoImpl ldaDAO = new LoaiDoAnDaoImpl();
         List<LoaiDoAn> listLDA = ldaDAO.getAll();
         modelCBB.removeAllElements();
         for (LoaiDoAn fill : listLDA) {
-            modelCBB.addElement(fill);
-
+            modelCBB.addElement(fill);       
         }
     }
 

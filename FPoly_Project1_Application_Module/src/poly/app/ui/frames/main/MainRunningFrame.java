@@ -7,7 +7,10 @@ package poly.app.ui.frames.main;
 
 //import com.apple.eawt.Application;
 import java.awt.CardLayout;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import poly.app.core.helper.DialogHelper;
 import poly.app.core.helper.ShareHelper;
 import poly.app.core.utils.HibernateUtil;
@@ -25,6 +28,10 @@ import poly.app.ui.frames.quanly.FrameQLKhachHang;
 import poly.app.ui.frames.quanly.FrameQLNguoiDung;
 import poly.app.ui.frames.quanly.FrameQLSuatChieu;
 import poly.app.ui.frames.quanly.FrameQLVeBan;
+import poly.app.ui.frames.thongke.FrameTKDoanhThuTheoDoAn;
+import poly.app.ui.frames.thongke.FrameTKDoanhThuTheoPhim;
+import poly.app.ui.frames.thongke.FrameTKTongDoanhThu;
+import poly.app.ui.frames.thongke.FrameTKVeBan;
 
 /**
  *
@@ -46,6 +53,11 @@ public class MainRunningFrame extends javax.swing.JFrame {
     private FrameBanDoAn frameBanDoAn;
     private FrameBanVe frameBanVe;
 
+    private FrameTKVeBan frameTKVeBan;
+    private FrameTKDoanhThuTheoDoAn frameTKDoanhThuTheoDoAn;
+    private FrameTKDoanhThuTheoPhim frameTKDoanhThuTheoPhim;
+    private FrameTKTongDoanhThu frameTKTongDoanhThu;
+
     private int numberOfThreadLoaded = 0;
     private final int maxnumberOfThreadLoaded = 3;
 
@@ -53,16 +65,10 @@ public class MainRunningFrame extends javax.swing.JFrame {
      * Creates new form MainFrame
      */
     public MainRunningFrame() {
-        changeAppIcon();
         renderMainUIInBackground();
         loadHibernateSession();
         renderChildFrame();
         showSplashScreen();
-    }
-
-    private void changeAppIcon() {
-        setIconImage(ShareHelper.APP_ICON);
-//        Application.getApplication().setDockIconImage(ShareHelper.APP_ICON);
     }
 
     private void reRenderUI() {
@@ -79,7 +85,7 @@ public class MainRunningFrame extends javax.swing.JFrame {
             initComponents();
             reRenderUI();
 
-            System.out.println("main ui");
+            System.out.println("main ui loaded");
             numberOfThreadLoaded++;
             if (numberOfThreadLoaded == maxnumberOfThreadLoaded) {
                 showLoginDialog();
@@ -91,7 +97,7 @@ public class MainRunningFrame extends javax.swing.JFrame {
         new Thread(() -> {
             HibernateUtil.getSessionFactory();
 
-            System.out.println("hibernate");
+            System.out.println("hibernate loaded");
             numberOfThreadLoaded++;
             if (numberOfThreadLoaded == maxnumberOfThreadLoaded) {
                 showLoginDialog();
@@ -112,7 +118,30 @@ public class MainRunningFrame extends javax.swing.JFrame {
             frameBanDoAn = new FrameBanDoAn();
             frameBanVe = new FrameBanVe();
 
-            System.out.println("child ui");
+            frameTKVeBan = new FrameTKVeBan();
+            frameTKDoanhThuTheoDoAn = new FrameTKDoanhThuTheoDoAn();
+            frameTKDoanhThuTheoPhim = new FrameTKDoanhThuTheoPhim();
+            frameTKTongDoanhThu = new FrameTKTongDoanhThu();
+
+            tbpMainContent.addChangeListener(new ChangeListener() {
+                private final JFrame[] childFrames = new JFrame[]{frameQLPhim, frameQLSuatChieu,
+                    frameQLDoAn, frameQLNguoiDung, frameQLKhachHang, frameQLHoaDon,
+                    frameQLVeBan, frameBanDoAn, frameBanVe, frameTKVeBan,
+                    frameTKDoanhThuTheoDoAn, frameTKDoanhThuTheoPhim, frameTKTongDoanhThu};
+
+                public void stateChanged(ChangeEvent e) {
+                    if (tbpMainContent.getSelectedIndex() >= 0) {
+                        String tabTitle = tbpMainContent.getTitleAt(tbpMainContent.getSelectedIndex());
+                        for (JFrame childFrame : childFrames) {
+                            if (childFrame.getTitle().equals(tabTitle)) {
+                                ((ClosableTabbedPane.ClosableTabbedPaneMethod) childFrame).synchronizedData();
+                            }
+                        }
+                    }
+                }
+            });
+
+            System.out.println("child ui loaded");
             numberOfThreadLoaded++;
             if (numberOfThreadLoaded == maxnumberOfThreadLoaded) {
                 showLoginDialog();
@@ -150,8 +179,10 @@ public class MainRunningFrame extends javax.swing.JFrame {
     private void setStartVaiTroTab() {
         if (ShareHelper.USER.getVaiTro().getId().equals("NV")) {
             btnToolBarBanHangMouseReleased(null);
-        }else if (ShareHelper.USER.getVaiTro().getId().equals("TR")) {
+        } else if (ShareHelper.USER.getVaiTro().getId().equals("TR")) {
             btnToolBarThongKeMouseReleased(null);
+        }else{
+            btnToolBarDanhMucMouseReleased(null);
         }
     }
 
@@ -185,8 +216,12 @@ public class MainRunningFrame extends javax.swing.JFrame {
         itemBanHangToolBarThucAn = new javax.swing.JButton();
         itemBanHangToolBarVe = new javax.swing.JButton();
         jToolBar3 = new javax.swing.JToolBar();
+        itemThongKeToolBarVeBan = new javax.swing.JButton();
+        itemThongKeToolBarDoAn = new javax.swing.JButton();
+        itemThongKeToolBarPhim = new javax.swing.JButton();
+        itemThongKeToolBarTongDoanhThu = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
-        tbpMainContent = new javax.swing.JTabbedPane();
+        tbpMainContent = new ClosableTabbedPane();
         jPanel5 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
 
@@ -203,7 +238,7 @@ public class MainRunningFrame extends javax.swing.JFrame {
         btnToolBarDanhMuc.setFont(new java.awt.Font("Open Sans", 0, 16)); // NOI18N
         btnToolBarDanhMuc.setForeground(new java.awt.Color(52, 83, 104));
         btnToolBarDanhMuc.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        btnToolBarDanhMuc.setText("Danh mục");
+        btnToolBarDanhMuc.setText("Quản lý");
         btnToolBarDanhMuc.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         btnToolBarDanhMuc.setOpaque(true);
         btnToolBarDanhMuc.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -466,6 +501,71 @@ public class MainRunningFrame extends javax.swing.JFrame {
         jToolBar3.setFloatable(false);
         jToolBar3.setRollover(true);
         jToolBar3.setOpaque(false);
+
+        itemThongKeToolBarVeBan.setBackground(new java.awt.Color(255, 255, 255));
+        itemThongKeToolBarVeBan.setFont(new java.awt.Font("Open Sans", 0, 16)); // NOI18N
+        itemThongKeToolBarVeBan.setIcon(new javax.swing.ImageIcon(getClass().getResource("/poly/app/ui/icons/tickets.png"))); // NOI18N
+        itemThongKeToolBarVeBan.setText("Thống kê vé bán");
+        itemThongKeToolBarVeBan.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        itemThongKeToolBarVeBan.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        itemThongKeToolBarVeBan.setFocusable(false);
+        itemThongKeToolBarVeBan.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
+        itemThongKeToolBarVeBan.setMargin(new java.awt.Insets(5, 10, 5, 10));
+        itemThongKeToolBarVeBan.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                itemThongKeToolBarVeBanActionPerformed(evt);
+            }
+        });
+        jToolBar3.add(itemThongKeToolBarVeBan);
+
+        itemThongKeToolBarDoAn.setBackground(new java.awt.Color(255, 255, 255));
+        itemThongKeToolBarDoAn.setFont(new java.awt.Font("Open Sans", 0, 16)); // NOI18N
+        itemThongKeToolBarDoAn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/poly/app/ui/icons/popcorn.png"))); // NOI18N
+        itemThongKeToolBarDoAn.setText("Thống kê đồ ăn");
+        itemThongKeToolBarDoAn.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        itemThongKeToolBarDoAn.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        itemThongKeToolBarDoAn.setFocusable(false);
+        itemThongKeToolBarDoAn.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
+        itemThongKeToolBarDoAn.setMargin(new java.awt.Insets(5, 10, 5, 10));
+        itemThongKeToolBarDoAn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                itemThongKeToolBarDoAnActionPerformed(evt);
+            }
+        });
+        jToolBar3.add(itemThongKeToolBarDoAn);
+
+        itemThongKeToolBarPhim.setBackground(new java.awt.Color(255, 255, 255));
+        itemThongKeToolBarPhim.setFont(new java.awt.Font("Open Sans", 0, 16)); // NOI18N
+        itemThongKeToolBarPhim.setIcon(new javax.swing.ImageIcon(getClass().getResource("/poly/app/ui/icons/film-reel.png"))); // NOI18N
+        itemThongKeToolBarPhim.setText("Thống kê phim");
+        itemThongKeToolBarPhim.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        itemThongKeToolBarPhim.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        itemThongKeToolBarPhim.setFocusable(false);
+        itemThongKeToolBarPhim.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
+        itemThongKeToolBarPhim.setMargin(new java.awt.Insets(5, 10, 5, 10));
+        itemThongKeToolBarPhim.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                itemThongKeToolBarPhimActionPerformed(evt);
+            }
+        });
+        jToolBar3.add(itemThongKeToolBarPhim);
+
+        itemThongKeToolBarTongDoanhThu.setBackground(new java.awt.Color(255, 255, 255));
+        itemThongKeToolBarTongDoanhThu.setFont(new java.awt.Font("Open Sans", 0, 16)); // NOI18N
+        itemThongKeToolBarTongDoanhThu.setIcon(new javax.swing.ImageIcon(getClass().getResource("/poly/app/ui/icons/analytics.png"))); // NOI18N
+        itemThongKeToolBarTongDoanhThu.setText("Thống kê tổng doanh thu");
+        itemThongKeToolBarTongDoanhThu.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        itemThongKeToolBarTongDoanhThu.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        itemThongKeToolBarTongDoanhThu.setFocusable(false);
+        itemThongKeToolBarTongDoanhThu.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
+        itemThongKeToolBarTongDoanhThu.setMargin(new java.awt.Insets(5, 10, 5, 10));
+        itemThongKeToolBarTongDoanhThu.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                itemThongKeToolBarTongDoanhThuActionPerformed(evt);
+            }
+        });
+        jToolBar3.add(itemThongKeToolBarTongDoanhThu);
+
         toolBarContainer.add(jToolBar3, "card4");
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
@@ -649,8 +749,9 @@ public class MainRunningFrame extends javax.swing.JFrame {
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
         if (ShareHelper.USER == null) {
             DialogHelper.message(this, "Hệ thống đã xảy ra lỗi", DialogHelper.ERROR_MESSAGE);
-            System.exit(0);
+            this.dispose();
         } else {
+            tbpMainContent.removeAll();
             setStartVaiTroTab();
             lblTenTaiKhoan.setText(ShareHelper.USER.getHoTen());
         }
@@ -666,6 +767,22 @@ public class MainRunningFrame extends javax.swing.JFrame {
     private void lblTenTaiKhoanMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblTenTaiKhoanMouseReleased
         new DialogCapNhatThongTinCaNhan(this, true).setVisible(true);
     }//GEN-LAST:event_lblTenTaiKhoanMouseReleased
+
+    private void itemThongKeToolBarVeBanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemThongKeToolBarVeBanActionPerformed
+        tbpMainContent.addTab(frameTKVeBan.getTitle(), frameTKVeBan.getMainPanel());
+    }//GEN-LAST:event_itemThongKeToolBarVeBanActionPerformed
+
+    private void itemThongKeToolBarDoAnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemThongKeToolBarDoAnActionPerformed
+        tbpMainContent.addTab(frameTKDoanhThuTheoDoAn.getTitle(), frameTKDoanhThuTheoDoAn.getMainPanel());
+    }//GEN-LAST:event_itemThongKeToolBarDoAnActionPerformed
+
+    private void itemThongKeToolBarPhimActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemThongKeToolBarPhimActionPerformed
+        tbpMainContent.addTab(frameTKDoanhThuTheoPhim.getTitle(), frameTKDoanhThuTheoPhim.getMainPanel());
+    }//GEN-LAST:event_itemThongKeToolBarPhimActionPerformed
+
+    private void itemThongKeToolBarTongDoanhThuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemThongKeToolBarTongDoanhThuActionPerformed
+        tbpMainContent.addTab(frameTKTongDoanhThu.getTitle(), frameTKTongDoanhThu.getMainPanel());
+    }//GEN-LAST:event_itemThongKeToolBarTongDoanhThuActionPerformed
 
     /**
      * @param args the command line arguments
@@ -717,6 +834,10 @@ public class MainRunningFrame extends javax.swing.JFrame {
     private javax.swing.JButton itemDanhMucToolBarSuatChieu;
     private javax.swing.JButton itemDanhMucToolBarThucAn;
     private javax.swing.JButton itemDanhMucToolBarVe;
+    private javax.swing.JButton itemThongKeToolBarDoAn;
+    private javax.swing.JButton itemThongKeToolBarPhim;
+    private javax.swing.JButton itemThongKeToolBarTongDoanhThu;
+    private javax.swing.JButton itemThongKeToolBarVeBan;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
@@ -727,7 +848,7 @@ public class MainRunningFrame extends javax.swing.JFrame {
     private javax.swing.JToolBar jToolBar2;
     private javax.swing.JToolBar jToolBar3;
     private javax.swing.JLabel lblTenTaiKhoan;
-    private javax.swing.JTabbedPane tbpMainContent;
+    private ClosableTabbedPane tbpMainContent;
     private javax.swing.JPanel toolBarContainer;
     // End of variables declaration//GEN-END:variables
 

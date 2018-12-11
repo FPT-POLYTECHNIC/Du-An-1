@@ -1,5 +1,6 @@
 package poly.app.ui.frames.quanly;
 
+import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -14,18 +15,19 @@ import javax.swing.table.DefaultTableModel;
 import poly.app.core.daoimpl.HoaDonDaoImpl;
 import poly.app.core.entities.HoaDon;
 import poly.app.core.entities.HoaDonChiTiet;
+import poly.app.ui.custom.ClosableTabbedPane;
 import poly.app.ui.utils.TableRendererUtil;
 
 /**
  *
  * @author vothanhtai
  */
-public class FrameQLHoaDon extends javax.swing.JFrame {
+public class FrameQLHoaDon extends javax.swing.JFrame  implements ClosableTabbedPane.ClosableTabbedPaneMethod{
 
     List<HoaDon> listHoaDon = new ArrayList<>();
     List<HoaDonChiTiet> listHoaDonCT = new ArrayList<>();
     Map<String, HoaDon> mapHoaDon = new TreeMap<>();
-
+    DecimalFormat df = new DecimalFormat("##,###,###");
     /**
      * Creates new form FrameQLNhanVien
      */
@@ -56,9 +58,30 @@ public class FrameQLHoaDon extends javax.swing.JFrame {
         tblRenderer.setColumnAlignment(4, TableRendererUtil.CELL_ALIGN_RIGHT);
     }
     
-    public JPanel getMainPanel(){
-        formWindowOpened(null);
+    public JPanel getMainPanel() {
+        synchronizedData();
         return this.pnlMain;
+    }
+    
+    public void synchronizedData(){
+        resetSearchForm();
+        this.loadDataToTable();
+    }
+    
+    
+    private void resetSearchForm() {
+        chkTheoMaHoaDon.setSelected(true);
+        txtMaHoaDon.setEnabled(true);
+        txtMaHoaDon.setText("");
+
+        chkKhoangThoiGian.setSelected(false);
+        dcTuNgay.setDate(null);
+        dcDenNgay.setDate(null);
+        dcTuNgay.setEnabled(false);
+        dcDenNgay.setEnabled(false);
+        
+        DefaultTableModel modelHDCT = (DefaultTableModel) tblHoaDonChiTiet.getModel();
+        modelHDCT.setRowCount(0);
     }
 
     /**
@@ -69,6 +92,7 @@ public class FrameQLHoaDon extends javax.swing.JFrame {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        java.awt.GridBagConstraints gridBagConstraints;
 
         pnlMain = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
@@ -82,8 +106,6 @@ public class FrameQLHoaDon extends javax.swing.JFrame {
         dcDenNgay = new com.toedter.calendar.JDateChooser();
         jPanel3 = new javax.swing.JPanel();
         jPanel4 = new javax.swing.JPanel();
-        jButton1 = new javax.swing.JButton();
-        btnRefresh = new javax.swing.JButton();
         jPanel5 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblHoaDon = new javax.swing.JTable();
@@ -97,6 +119,8 @@ public class FrameQLHoaDon extends javax.swing.JFrame {
                 formWindowOpened(evt);
             }
         });
+
+        jPanel2.setPreferredSize(new java.awt.Dimension(280, 329));
 
         jLabel1.setFont(new java.awt.Font("Open Sans", 1, 18)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(52, 83, 104));
@@ -157,25 +181,30 @@ public class FrameQLHoaDon extends javax.swing.JFrame {
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(30, 30, 30)
-                        .addComponent(jLabel1))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addGap(30, 30, 30)
+                                .addComponent(jLabel1))
+                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addGap(10, 10, 10)
+                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel3)
+                                    .addComponent(jLabel2)
+                                    .addComponent(chkKhoangThoiGian)
+                                    .addComponent(chkTheoMaHoaDon))))
+                        .addGap(0, 78, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                         .addGap(10, 10, 10)
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(txtMaHoaDon, javax.swing.GroupLayout.PREFERRED_SIZE, 230, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addComponent(jLabel3)
-                                .addComponent(jLabel2)
-                                .addComponent(chkKhoangThoiGian)
-                                .addComponent(dcTuNgay, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(dcDenNgay, javax.swing.GroupLayout.PREFERRED_SIZE, 230, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(chkTheoMaHoaDon))))
-                .addContainerGap(10, Short.MAX_VALUE))
+                            .addComponent(dcTuNgay, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(dcDenNgay, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(txtMaHoaDon, javax.swing.GroupLayout.Alignment.TRAILING))))
+                .addGap(10, 10, 10))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(16, 16, 16)
+                .addGap(15, 15, 15)
                 .addComponent(jLabel1)
                 .addGap(22, 22, 22)
                 .addComponent(chkTheoMaHoaDon)
@@ -198,48 +227,23 @@ public class FrameQLHoaDon extends javax.swing.JFrame {
 
         jPanel4.setOpaque(false);
 
-        jButton1.setFont(new java.awt.Font("Open Sans", 0, 14)); // NOI18N
-        jButton1.setText("In hoá đơn");
-        jButton1.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
-            }
-        });
-
-        btnRefresh.setFont(new java.awt.Font("Open Sans", 0, 14)); // NOI18N
-        btnRefresh.setText("Refresh");
-        btnRefresh.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        btnRefresh.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnRefreshActionPerformed(evt);
-            }
-        });
-
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel4Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jButton1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(btnRefresh)
-                .addContainerGap())
+            .addGap(0, 231, Short.MAX_VALUE)
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel4Layout.createSequentialGroup()
-                .addGap(18, 18, 18)
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnRefresh, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(16, Short.MAX_VALUE))
+            .addGap(0, 63, Short.MAX_VALUE)
         );
 
         jPanel5.setOpaque(false);
+        jPanel5.setLayout(new java.awt.GridBagLayout());
 
-        tblHoaDon.setFont(new java.awt.Font("Open Sans", 0, 13)); // NOI18N
+        jScrollPane1.setPreferredSize(new java.awt.Dimension(0, 0));
+
+        tblHoaDon.setFont(new java.awt.Font("Open Sans", 0, 14)); // NOI18N
         tblHoaDon.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
@@ -263,9 +267,11 @@ public class FrameQLHoaDon extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
-        tblHoaDon.setRowHeight(20);
+        tblHoaDon.setRowHeight(22);
         tblHoaDon.setSelectionBackground(new java.awt.Color(96, 116, 129));
         tblHoaDon.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        tblHoaDon.setShowHorizontalLines(false);
+        tblHoaDon.setShowVerticalLines(false);
         tblHoaDon.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 tblHoaDonMouseClicked(evt);
@@ -273,7 +279,18 @@ public class FrameQLHoaDon extends javax.swing.JFrame {
         });
         jScrollPane1.setViewportView(tblHoaDon);
 
-        tblHoaDonChiTiet.setFont(new java.awt.Font("Open Sans", 0, 13)); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 0.5;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 10, 10, 0);
+        jPanel5.add(jScrollPane1, gridBagConstraints);
+
+        jScrollPane2.setPreferredSize(new java.awt.Dimension(0, 0));
+
+        tblHoaDonChiTiet.setFont(new java.awt.Font("Open Sans", 0, 14)); // NOI18N
         tblHoaDonChiTiet.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
@@ -290,9 +307,11 @@ public class FrameQLHoaDon extends javax.swing.JFrame {
                 return types [columnIndex];
             }
         });
-        tblHoaDonChiTiet.setRowHeight(20);
+        tblHoaDonChiTiet.setRowHeight(22);
         tblHoaDonChiTiet.setSelectionBackground(new java.awt.Color(96, 116, 129));
         tblHoaDonChiTiet.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        tblHoaDonChiTiet.setShowHorizontalLines(false);
+        tblHoaDonChiTiet.setShowVerticalLines(false);
         tblHoaDonChiTiet.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 tblHoaDonChiTietMouseClicked(evt);
@@ -300,26 +319,14 @@ public class FrameQLHoaDon extends javax.swing.JFrame {
         });
         jScrollPane2.setViewportView(tblHoaDonChiTiet);
 
-        javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
-        jPanel5.setLayout(jPanel5Layout);
-        jPanel5Layout.setHorizontalGroup(
-            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
-                .addGap(10, 10, 10)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 278, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 436, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(10, 10, 10))
-        );
-        jPanel5Layout.setVerticalGroup(
-            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel5Layout.createSequentialGroup()
-                .addGap(0, 0, 0)
-                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 504, Short.MAX_VALUE)
-                    .addComponent(jScrollPane1))
-                .addGap(10, 10, 10))
-        );
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 0.5;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 6, 10, 10);
+        jPanel5.add(jScrollPane2, gridBagConstraints);
 
         btnCollapse.setBackground(new java.awt.Color(52, 83, 104));
         btnCollapse.setFont(new java.awt.Font("Tahoma", 1, 15)); // NOI18N
@@ -366,7 +373,7 @@ public class FrameQLHoaDon extends javax.swing.JFrame {
         );
         pnlMainLayout.setVerticalGroup(
             pnlMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, 581, Short.MAX_VALUE)
             .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
@@ -399,7 +406,9 @@ public class FrameQLHoaDon extends javax.swing.JFrame {
     }//GEN-LAST:event_formWindowOpened
 
     private void tblHoaDonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblHoaDonMouseClicked
-        this.loadHoaDonChiTiet();
+        if (tblHoaDon.getSelectedRow() >= 0) {
+            this.loadHoaDonChiTiet();
+        }
     }//GEN-LAST:event_tblHoaDonMouseClicked
 
     private void txtMaHoaDonKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtMaHoaDonKeyReleased
@@ -412,18 +421,21 @@ public class FrameQLHoaDon extends javax.swing.JFrame {
 
     private void chkTheoMaHoaDonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkTheoMaHoaDonActionPerformed
         txtMaHoaDon.setText("");
-        txtMaHoaDon.setEditable(chkTheoMaHoaDon.isSelected());
+        txtMaHoaDon.setEnabled(chkTheoMaHoaDon.isSelected());
     }//GEN-LAST:event_chkTheoMaHoaDonActionPerformed
 
     private void chkKhoangThoiGianActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkKhoangThoiGianActionPerformed
         if (chkKhoangThoiGian.isSelected()) {
             dcTuNgay.setEnabled(true);
             dcDenNgay.setEnabled(true);
+            dcTuNgay.setDate(new Date());
+            dcDenNgay.setDate(new Date());
         } else {
             dcTuNgay.setDate(null);
             dcDenNgay.setDate(null);
             dcTuNgay.setEnabled(false);
             dcDenNgay.setEnabled(false);
+            this.searchHD();
         }
     }//GEN-LAST:event_chkKhoangThoiGianActionPerformed
 
@@ -453,16 +465,6 @@ public class FrameQLHoaDon extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_dcDenNgayPropertyChange
 
-    private void btnRefreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRefreshActionPerformed
-        DefaultTableModel modelHDCT = (DefaultTableModel) tblHoaDonChiTiet.getModel();
-        modelHDCT.setRowCount(0);
-        this.loadDataToTable();
-    }//GEN-LAST:event_btnRefreshActionPerformed
-
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        this.printHoaDon();
-    }//GEN-LAST:event_jButton1ActionPerformed
-
     public void loadDataToTable() {
         DefaultTableModel modelHD = (DefaultTableModel) tblHoaDon.getModel();
         modelHD.setRowCount(0);
@@ -482,7 +484,7 @@ public class FrameQLHoaDon extends javax.swing.JFrame {
                 i++,
                 fill.getId(),
                 fill.getNgayBan(),
-                tongTienHD,
+                df.format(tongTienHD),
                 fill.getNguoiDung().getHoTen()
             };
             modelHD.addRow(record);
@@ -505,7 +507,7 @@ public class FrameQLHoaDon extends javax.swing.JFrame {
                 hdct.getDoAnChiTiet().getDoAn().getTen(),
                 hdct.getDoAnChiTiet().getKichCoDoAn().getTen(),
                 hdct.getSoLuong(),
-                hdct.getDoAnChiTiet().getDonGia()
+                df.format(hdct.getDoAnChiTiet().getDonGia())
             };
             modelHDCT.addRow(record);
         }
@@ -548,10 +550,6 @@ public class FrameQLHoaDon extends javax.swing.JFrame {
                 }
             }
         }
-    }
-    public void printHoaDon()
-    {
-        
     }
 
     /**
@@ -598,12 +596,10 @@ public class FrameQLHoaDon extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel btnCollapse;
-    private javax.swing.JButton btnRefresh;
     private javax.swing.JCheckBox chkKhoangThoiGian;
     private javax.swing.JCheckBox chkTheoMaHoaDon;
     private com.toedter.calendar.JDateChooser dcDenNgay;
     private com.toedter.calendar.JDateChooser dcTuNgay;
-    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;

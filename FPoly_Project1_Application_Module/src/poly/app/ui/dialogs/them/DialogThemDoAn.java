@@ -12,6 +12,7 @@ import poly.app.core.daoimpl.LoaiDoAnDaoImpl;
 import poly.app.core.entities.DoAn;
 import poly.app.core.entities.LoaiDoAn;
 import poly.app.core.helper.DialogHelper;
+import poly.app.ui.utils.ValidationUtil;
 
 /**
  *
@@ -44,7 +45,7 @@ public class DialogThemDoAn extends javax.swing.JDialog {
         DoAn model = new DoAn();
         model.setTen(txtTen.getText());
         model.setLoaiDoAn((LoaiDoAn) cboLoaiDoAn.getSelectedItem());
-        if (cboLoaiDoAn.getSelectedItem().toString().equals("Đang được bán")) {
+        if (cboLoaiDoAn.getSelectedIndex()==0) {
             model.setDangBan(true);
         } else {
             model.setDangBan(false);
@@ -62,6 +63,14 @@ public class DialogThemDoAn extends javax.swing.JDialog {
         } catch (Exception e) {
         }
         return false;
+    }
+
+    private boolean validateInput() {
+        if (!ValidationUtil.isLenghtEnought(txtTen.getText(), 3)) {
+            DialogHelper.message(this, "Nhập tên đồ ăn, ít nhất 3 kí tự !", DialogHelper.ERROR_MESSAGE);
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -241,11 +250,13 @@ public class DialogThemDoAn extends javax.swing.JDialog {
     }//GEN-LAST:event_formWindowOpened
 
     private void btnLuuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLuuActionPerformed
-        if (insertModelToDatabase()) {
-            DialogHelper.message(this, "Thêm dữ liệu thành công!", DialogHelper.INFORMATION_MESSAGE);
-            this.dispose();
-        } else {
-            DialogHelper.message(this, "Thêm dữ liệu thất bại!", DialogHelper.ERROR_MESSAGE);
+        if (validateInput()) {
+            if (insertModelToDatabase()) {
+                DialogHelper.message(this, "Thêm dữ liệu thành công!", DialogHelper.INFORMATION_MESSAGE);
+                this.dispose();
+            } else {
+                DialogHelper.message(this, "Thêm dữ liệu thất bại!", DialogHelper.ERROR_MESSAGE);
+            }
         }
     }//GEN-LAST:event_btnLuuActionPerformed
 

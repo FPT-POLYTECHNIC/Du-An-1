@@ -60,14 +60,15 @@ public class DialogCapNhatSuatChieu extends javax.swing.JDialog {
     public DialogCapNhatSuatChieu(java.awt.Frame parent, boolean modal, Date ngayChieu, PhongChieu phongChieu) {
         this(parent, modal);
 
+        dcsNgayChieuFilter.setDate(ngayChieu);
+        cboPhongChieuFilter.getModel().setSelectedItem(phongChieu);
+        reRenderUI();
+
         isAllComboboxLoaded = false;
         loadDataToCboPhongChieu();
         loadDataToCboPhim();
         loadDataToCboDinhDang();
         isAllComboboxLoaded = true;
-        dcsNgayChieuFilter.setDate(ngayChieu);
-        cboPhongChieuFilter.getModel().setSelectedItem(phongChieu);
-        reRenderUI();
         loadTimeLine();
     }
 
@@ -82,18 +83,11 @@ public class DialogCapNhatSuatChieu extends javax.swing.JDialog {
     }
 
     private void reRenderUI() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-
-        Date date = calendar.getTime();
-
-        SpinnerDateModel model = new SpinnerDateModel(date, null, null, Calendar.MINUTE);
+        SpinnerDateModel model = new SpinnerDateModel(new Date(), null, null, Calendar.MINUTE);
         spnGioBatDau.setModel(model);
         spnGioBatDau.setEditor(new JSpinner.DateEditor(spnGioBatDau, "HH:mm:ss"));
 
-        SpinnerDateModel model1 = new SpinnerDateModel(date, null, null, Calendar.MINUTE);
+        SpinnerDateModel model1 = new SpinnerDateModel(new Date(), null, null, Calendar.MINUTE);
         spnGioKetThuc.setModel(model1);
         spnGioKetThuc.setEditor(new JSpinner.DateEditor(spnGioKetThuc, "HH:mm:ss"));
 
@@ -212,6 +206,20 @@ public class DialogCapNhatSuatChieu extends javax.swing.JDialog {
 
         SuatChieu prevSuatChieu = suatChieuItemList.get(khoangCachItem.getPrevSuatChieuIndex()).getSuatChieu();
 
+        if (changeKhoangCach > 0) {
+            Date nextDayMidNight = DateHelper.getMidNight(DateHelper.rollDays(dcsNgayChieu.getDate(), 1));
+
+            for (int i = khoangCachItem.getPrevSuatChieuIndex() + 1; i < suatChieuItemList.size(); i++) {
+                SuatChieu nextSuatChieu = suatChieuItemList.get(i).getSuatChieu();
+                Date newNextGioBatDau = DateHelper.rollTime(nextSuatChieu.getGioBatDau(), Calendar.MINUTE, changeKhoangCach);
+                if (newNextGioBatDau.compareTo(nextDayMidNight) >= 0) {
+                    String alertStr = "Lỗi: thời gian chờ quá lớn sẽ đẩy các suất chiếu sau sang ngày tiếp theo";
+                    DialogHelper.message(this, alertStr, DialogHelper.ERROR_MESSAGE);
+                    return;
+                }
+            }
+        }
+
         try {
             new SuatChieuDaoImpl().updateThoiGianCacSuatChieu(prevSuatChieu, changeKhoangCach);
             DialogHelper.message(this, "Cập nhật dữ liệu thành công!", DialogHelper.INFORMATION_MESSAGE);
@@ -242,6 +250,14 @@ public class DialogCapNhatSuatChieu extends javax.swing.JDialog {
         cboDinhDang.getModel().setSelectedItem(updatingSuatChieu.getDinhDangPhim());
         spnGioBatDau.setValue(updatingSuatChieu.getGioBatDau());
         spnGioKetThuc.setValue(updatingSuatChieu.getGioKetThuc());
+
+        if (updatingSuatChieu.getGioBatDau().compareTo(new Date()) < 0) {
+            btnSaveOrUpdate.setEnabled(false);
+            btnResetOrDelete.setEnabled(false);
+        } else {
+            btnSaveOrUpdate.setEnabled(true);
+            btnResetOrDelete.setEnabled(true);
+        }
     }
 
     private void loadDataToCboPhongChieu() {
@@ -277,7 +293,19 @@ public class DialogCapNhatSuatChieu extends javax.swing.JDialog {
         cboDinhDang.setSelectedIndex(0);
         btnSaveOrUpdate.setText("Thêm");
         btnResetOrDelete.setText("Reset");
-        reRenderUI();
+        btnSaveOrUpdate.setEnabled(true);
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(dcsNgayChieu.getDate());
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+
+        Phim phim = (Phim) cboPhim.getModel().getSelectedItem();
+        Date newGioBatDau = calendar.getTime();
+
+        spnGioBatDau.setValue(newGioBatDau);
+        spnGioKetThuc.setValue(DateHelper.rollTime(newGioBatDau, Calendar.MINUTE, phim.getThoiLuong()));
 
         Component[] components = pnlLichChieu.getComponents();
         for (Component component : components) {
@@ -285,6 +313,7 @@ public class DialogCapNhatSuatChieu extends javax.swing.JDialog {
                 ((PanelSuatChieuItem) component).setItemUnSelected();
             }
         }
+        updatingIndex = -1;
     }
 
     private void setUpdatingState() {
@@ -293,9 +322,9 @@ public class DialogCapNhatSuatChieu extends javax.swing.JDialog {
         btnResetOrDelete.setText("Xoá");
     }
 
-    private Date getMergeDateAndTime(Date inputDate) {
-        String dateStr = new SimpleDateFormat("yyyy-MM-dd").format(dcsNgayChieu.getDate());
-        String timeStr = new SimpleDateFormat("HH:mm:ss").format(inputDate);
+    private Date getMergeDateAndTime(Date inputTime, Date inputDate) {
+        String dateStr = new SimpleDateFormat("yyyy-MM-dd").format(inputDate);
+        String timeStr = new SimpleDateFormat("HH:mm:ss").format(inputTime);
         LocalDateTime dt = LocalDateTime.of(LocalDate.parse(dateStr), LocalTime.parse(timeStr));
 
         return Date.from(dt.atZone(ZoneId.systemDefault()).toInstant());
@@ -303,19 +332,39 @@ public class DialogCapNhatSuatChieu extends javax.swing.JDialog {
 
     private boolean checkGioBatDauSuatChieu() {
         Date newGioBatDau = (Date) spnGioBatDau.getValue();
-        newGioBatDau = getMergeDateAndTime(newGioBatDau);
+        Date newGioKetThuc = (Date) spnGioKetThuc.getValue();
 
         for (PanelSuatChieuItem panelSuatChieuItem : suatChieuItemList) {
             SuatChieu curSuatChieu = panelSuatChieuItem.getSuatChieu();
             if (panelSuatChieuItem.getSuatChieuIndex() != updatingIndex
-                    && curSuatChieu.getGioBatDau().compareTo(newGioBatDau) < 0
-                    && curSuatChieu.getGioKetThuc().compareTo(newGioBatDau) > 0) {
+                    && ((curSuatChieu.getGioBatDau().compareTo(newGioBatDau) >= 0
+                    && curSuatChieu.getGioBatDau().compareTo(newGioKetThuc) <= 0)
+                    || (curSuatChieu.getGioKetThuc().compareTo(newGioBatDau) >= 0
+                    && curSuatChieu.getGioKetThuc().compareTo(newGioKetThuc) <= 0))) {
+
                 String alertStr = "Suất chiếu bị trùng với suất:\n"
                         + curSuatChieu.getPhim().getTen() + " (" + DateHelper.toTimeString(curSuatChieu.getGioBatDau())
-                        + " - " + DateHelper.toTimeString(curSuatChieu.getGioKetThuc());
+                        + " - " + DateHelper.toTimeString(curSuatChieu.getGioKetThuc()) + ")";
 
                 DialogHelper.message(this, alertStr, DialogHelper.ERROR_MESSAGE);
                 return false;
+            }
+        }
+
+        if (newGioKetThuc.compareTo(newGioBatDau) > 0) {
+            List<SuatChieu> nextDaySuatChieus = new SuatChieuDaoImpl().getSuatChieuByNgayVaByPhong(DateHelper.rollDays(dcsNgayChieu.getDate(), 1), (PhongChieu) cboPhongChieu.getSelectedItem());
+            for (SuatChieu nextDaySuatChieu : nextDaySuatChieus) {
+                if (nextDaySuatChieu.getGioBatDau().compareTo(newGioKetThuc) < 0
+                        && nextDaySuatChieu.getGioKetThuc().compareTo(newGioKetThuc) > 0) {
+
+                    String alertStr = "Suất chiếu bị trùng với suất:\n"
+                            + nextDaySuatChieu.getPhim().getTen() + " (" + DateHelper.toTimeString(nextDaySuatChieu.getGioBatDau())
+                            + " - " + DateHelper.toTimeString(nextDaySuatChieu.getGioKetThuc()) + ")"
+                            + "\ncủa ngày hôm sau";
+
+                    DialogHelper.message(this, alertStr, DialogHelper.ERROR_MESSAGE);
+                    return false;
+                }
             }
         }
 
@@ -326,22 +375,13 @@ public class DialogCapNhatSuatChieu extends javax.swing.JDialog {
         Date newGioBatDau = (Date) spnGioBatDau.getValue();
         Date newGioKetThuc = (Date) spnGioKetThuc.getValue();
 
-        newGioBatDau = getMergeDateAndTime(newGioBatDau);
-        newGioKetThuc = getMergeDateAndTime(newGioKetThuc);
-
         for (PanelSuatChieuItem panelSuatChieuItem : suatChieuItemList) {
             SuatChieu curSuatChieu = panelSuatChieuItem.getSuatChieu();
             if (panelSuatChieuItem.getSuatChieuIndex() != updatingIndex) {
-                boolean isValid = true;
-                if (curSuatChieu.getGioBatDau().compareTo(newGioBatDau) < 0
-                        && curSuatChieu.getGioKetThuc().compareTo(newGioBatDau) > 0) {
-                    isValid = false;
-                } else if (curSuatChieu.getGioBatDau().compareTo(newGioKetThuc) < 0
-                        && curSuatChieu.getGioKetThuc().compareTo(newGioKetThuc) > 0) {
-                    isValid = false;
-                }
-
-                if (!isValid) {
+                if ((curSuatChieu.getGioBatDau().compareTo(newGioBatDau) >= 0
+                        && curSuatChieu.getGioBatDau().compareTo(newGioKetThuc) <= 0)
+                        || (curSuatChieu.getGioKetThuc().compareTo(newGioBatDau) >= 0
+                        && curSuatChieu.getGioKetThuc().compareTo(newGioKetThuc) <= 0)) {
                     String alertStr = "Suất chiếu bị trùng với suất:\n"
                             + curSuatChieu.getPhim().getTen() + " (" + DateHelper.toTimeString(curSuatChieu.getGioBatDau())
                             + " - " + DateHelper.toTimeString(curSuatChieu.getGioKetThuc()) + ")";
@@ -349,48 +389,55 @@ public class DialogCapNhatSuatChieu extends javax.swing.JDialog {
                     DialogHelper.message(this, alertStr, DialogHelper.ERROR_MESSAGE);
                     return false;
                 }
-
             }
         }
 
         return true;
     }
 
-    private boolean updateSuatChieu() {
+    private Boolean updateSuatChieu() {
         SuatChieu updatingSuatChieu = suatChieuItemList.get(updatingIndex).getSuatChieu();
         boolean isUpdated = true;
-        Date newGioBatDau = (Date) spnGioBatDau.getValue();
-
         if (!checkGioBatDauSuatChieu()) {
-            return false;
+            return null;
         }
 
+        Date newGioBatDau = (Date) spnGioBatDau.getValue();
         Date newGioKetThuc = (Date) spnGioKetThuc.getValue();
         int durationChange = DateHelper.minutesDiff(updatingSuatChieu.getGioKetThuc(), newGioKetThuc);
 
         Phim phim = (Phim) cboPhim.getModel().getSelectedItem();
         DinhDangPhim dinhDangPhim = (DinhDangPhim) cboDinhDang.getModel().getSelectedItem();
-        updatingSuatChieu.setPhim(phim);
-        updatingSuatChieu.setDinhDangPhim(dinhDangPhim);
-
-        updatingSuatChieu.setGioBatDau(getMergeDateAndTime(newGioBatDau));
-        updatingSuatChieu.setGioKetThuc(getMergeDateAndTime(newGioKetThuc));
 
         SuatChieu nextSuatChieu = null;
         if (updatingIndex + 1 < suatChieuItemList.size()) {
             nextSuatChieu = suatChieuItemList.get(updatingIndex + 1).getSuatChieu();
         }
+
         if (nextSuatChieu != null && updatingSuatChieu.getGioKetThuc().compareTo(nextSuatChieu.getGioBatDau()) > 0) {
             String alertStr = "Lưu ý: khi cập nhật thì những suất chiếu sau sẽ tăng thời gian bắt đầu";
             if (DialogHelper.confirm(this, alertStr)) {
+//                Cap nhat thong tin suat chieu
+                updatingSuatChieu.setPhim(phim);
+                updatingSuatChieu.setDinhDangPhim(dinhDangPhim);
+                updatingSuatChieu.setGioBatDau(newGioBatDau);
+                updatingSuatChieu.setGioKetThuc(newGioKetThuc);
+
                 try {
                     isUpdated = new SuatChieuDaoImpl().updateAnhHuongSuatChieuSau(updatingSuatChieu, durationChange);
                 } catch (Exception e) {
                     e.printStackTrace();
                     isUpdated = false;
                 }
+            } else {
+                return null;
             }
         } else {
+            updatingSuatChieu.setPhim(phim);
+            updatingSuatChieu.setDinhDangPhim(dinhDangPhim);
+            updatingSuatChieu.setGioBatDau(newGioBatDau);
+            updatingSuatChieu.setGioKetThuc(newGioKetThuc);
+
             isUpdated = new SuatChieuDaoImpl().update(updatingSuatChieu);
         }
 
@@ -398,8 +445,8 @@ public class DialogCapNhatSuatChieu extends javax.swing.JDialog {
     }
 
     private SuatChieu insertSuatChieu() {
-        Date gioBatDau = getMergeDateAndTime((Date) spnGioBatDau.getValue());
-        Date gioKetThuc = getMergeDateAndTime((Date) spnGioKetThuc.getValue());
+        Date gioBatDau = (Date) spnGioBatDau.getValue();
+        Date gioKetThuc = (Date) spnGioKetThuc.getValue();
 
         if (!checkThoiGianSuatChieu()) {
             return null;
@@ -528,7 +575,7 @@ public class DialogCapNhatSuatChieu extends javax.swing.JDialog {
         jScrollPane1.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         jScrollPane1.setAutoscrolls(true);
 
-        pnlLichChieu.setOpaque(false);
+        pnlLichChieu.setBackground(new java.awt.Color(255, 255, 255));
 
         javax.swing.GroupLayout pnlLichChieuLayout = new javax.swing.GroupLayout(pnlLichChieu);
         pnlLichChieu.setLayout(pnlLichChieuLayout);
@@ -555,7 +602,7 @@ public class DialogCapNhatSuatChieu extends javax.swing.JDialog {
         );
 
         btnAddNew.setBackground(new java.awt.Color(52, 83, 104));
-        btnAddNew.setFont(new java.awt.Font("Tahoma", 1, 20)); // NOI18N
+        btnAddNew.setFont(new java.awt.Font("Open Sans", 1, 14)); // NOI18N
         btnAddNew.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         btnAddNew.setIcon(new javax.swing.ImageIcon(getClass().getResource("/poly/app/ui/icons/add.png"))); // NOI18N
         btnAddNew.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
@@ -806,17 +853,19 @@ public class DialogCapNhatSuatChieu extends javax.swing.JDialog {
 
     private void btnSaveOrUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveOrUpdateActionPerformed
         if (btnSaveOrUpdate.getText().equals("Cập nhật")) {
-            boolean isUpdated = updateSuatChieu();
+            Boolean isUpdated = updateSuatChieu();
 
-            if (isUpdated) {
-                DialogHelper.message(this, "Cập nhật dữ liệu thành công!", DialogHelper.INFORMATION_MESSAGE);
-                loadTimeLine();
+            if (isUpdated != null) {
+                if (isUpdated) {
+                    DialogHelper.message(this, "Cập nhật dữ liệu thành công!", DialogHelper.INFORMATION_MESSAGE);
+                    loadTimeLine();
 
-                suatChieuItemList.get(updatingIndex).setItemSelected();
+                    suatChieuItemList.get(updatingIndex).setItemSelected();
 
-                setUpdatingState();
-            } else {
-                DialogHelper.message(this, "Cập nhật dữ liệu thất bại!", DialogHelper.ERROR_MESSAGE);
+                    setUpdatingState();
+                } else {
+                    DialogHelper.message(this, "Cập nhật dữ liệu thất bại!", DialogHelper.ERROR_MESSAGE);
+                }
             }
         } else {
             SuatChieu newSuatChieu = insertSuatChieu();
@@ -840,35 +889,44 @@ public class DialogCapNhatSuatChieu extends javax.swing.JDialog {
     }//GEN-LAST:event_btnSaveOrUpdateActionPerformed
 
     private void cboPhongChieuFilterItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cboPhongChieuFilterItemStateChanged
-        if (updatingIndex != -1) {
+        if (isAllComboboxLoaded) {
             loadTimeLine();
             cboPhongChieu.getModel().setSelectedItem(cboPhongChieuFilter.getModel().getSelectedItem());
 
-            updatingIndex = 0;
-            suatChieuItemList.get(updatingIndex).setItemSelected();
+            if (suatChieuItemList.size() > 0) {
+                updatingIndex = 0;
+                suatChieuItemClickAction(suatChieuItemList.get(0));
+            }
         }
     }//GEN-LAST:event_cboPhongChieuFilterItemStateChanged
 
     private void dcsNgayChieuFilterPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_dcsNgayChieuFilterPropertyChange
-        if (updatingIndex != -1 && (dcsNgayChieu.getDate() != null && dcsNgayChieuFilter.getDate() != null)
+        if ((dcsNgayChieu.getDate() != null && dcsNgayChieuFilter.getDate() != null)
                 && !dcsNgayChieuFilter.getDate().equals(dcsNgayChieu.getDate())) {
             loadTimeLine();
             dcsNgayChieu.setDate(dcsNgayChieuFilter.getDate());
 
-            updatingIndex = 0;
-            suatChieuItemList.get(updatingIndex).setItemSelected();
+            if (suatChieuItemList.size() > 0) {
+                updatingIndex = 0;
+                suatChieuItemClickAction(suatChieuItemList.get(0));
+            }
         }
     }//GEN-LAST:event_dcsNgayChieuFilterPropertyChange
 
     private void cboPhimItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cboPhimItemStateChanged
-        spnGioBatDauStateChanged(null);
+        if (isAllComboboxLoaded) {
+            spnGioBatDauStateChanged(null);
+        }
     }//GEN-LAST:event_cboPhimItemStateChanged
 
     private void spnGioBatDauStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_spnGioBatDauStateChanged
-        if (updatingIndex != -1 && spnGioBatDau.getValue() != null && spnGioKetThuc.getValue() != null && isAllComboboxLoaded) {
+        if (spnGioBatDau.getValue() != null && spnGioKetThuc.getValue() != null && isAllComboboxLoaded) {
             Phim phim = (Phim) cboPhim.getModel().getSelectedItem();
-            Date gioBatDau = (Date) spnGioBatDau.getValue();
-            spnGioKetThuc.setValue(DateHelper.addMinutes(gioBatDau, phim.getThoiLuong()));
+            Date newGioBatDau = (Date) spnGioBatDau.getValue();
+            newGioBatDau = getMergeDateAndTime(newGioBatDau, dcsNgayChieu.getDate());
+
+            spnGioBatDau.setValue(newGioBatDau);
+            spnGioKetThuc.setValue(DateHelper.rollTime(newGioBatDau, Calendar.MINUTE, phim.getThoiLuong()));
         }
     }//GEN-LAST:event_spnGioBatDauStateChanged
 

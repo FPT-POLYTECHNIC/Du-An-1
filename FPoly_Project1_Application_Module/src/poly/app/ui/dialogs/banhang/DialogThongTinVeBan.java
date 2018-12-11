@@ -10,6 +10,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -18,8 +19,10 @@ import javax.swing.AbstractButton;
 import javax.swing.DefaultCellEditor;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
+import javax.swing.JFrame;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import net.sf.jasperreports.swing.JRViewer;
 import poly.app.core.dao.VeBanDao;
 import poly.app.core.daoimpl.GiaVeDaoImpl;
 import poly.app.core.daoimpl.VeBanDaoImpl;
@@ -30,6 +33,8 @@ import poly.app.core.entities.SuatChieu;
 import poly.app.core.entities.VeBan;
 import poly.app.core.helper.DialogHelper;
 import poly.app.core.helper.ShareHelper;
+import poly.app.ui.report.VeBanReportParameter;
+import poly.app.ui.utils.ReportPrinterUtil;
 import poly.app.ui.utils.TableRendererUtil;
 
 /**
@@ -37,7 +42,7 @@ import poly.app.ui.utils.TableRendererUtil;
  * @author vothanhtai
  */
 public class DialogThongTinVeBan extends javax.swing.JDialog {
-    
+
     SuatChieu suatChieu;
     Map<String, GheNgoi> selectedGheNgoiMap = new HashMap<>();
     List<GiaVe> giaveList;
@@ -50,22 +55,22 @@ public class DialogThongTinVeBan extends javax.swing.JDialog {
         initComponents();
         setLocationRelativeTo(null);
     }
-    
+
     public DialogThongTinVeBan(java.awt.Frame parent, boolean modal, SuatChieu suatChieu, Map<String, GheNgoi> selectedGheNgoiMap) {
         this(parent, modal);
-        
+
         this.suatChieu = suatChieu;
         this.selectedGheNgoiMap = selectedGheNgoiMap;
-        
+
         giaveList = new GiaVeDaoImpl().getAll();
-        
+
         reRenderUI();
         setDataToInput();
         setDataToTable();
-        
+
         tinhTongTien();
     }
-    
+
     private void reRenderUI() {
         //        Render lại giao diện cho table
         TableRendererUtil tblRenderer = new TableRendererUtil(tblThongTin);
@@ -74,7 +79,7 @@ public class DialogThongTinVeBan extends javax.swing.JDialog {
         tblRenderer.setColoumnWidthByPersent(2, 5);
         tblRenderer.setColoumnWidthByPersent(4, 5);
         tblRenderer.setColoumnWidthByPersent(6, 5);
-        
+
         JComboBox comboBox = new JComboBox();
         for (Component component : comboBox.getComponents()) {
             if (component instanceof AbstractButton) {
@@ -83,20 +88,20 @@ public class DialogThongTinVeBan extends javax.swing.JDialog {
                 }
             }
         }
-        
+
         comboBox.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 for (int i = 0; i < tblThongTin.getRowCount(); i++) {
                     LoaiGhe loaiGhe = (LoaiGhe) tblThongTin.getValueAt(i, 1);
                     GiaVe giaVe = (GiaVe) tblThongTin.getValueAt(i, 3);
-                    
+
                     int phuThuSuatChieu = Integer.parseInt(tblThongTin.getValueAt(i, 5).toString().replace(",", ""));
-                    
+
                     tblThongTin.setValueAt(new DecimalFormat("#,###,###").format(giaVe.getDonGia()), i, 4);
-                    
+
                     tblThongTin.setValueAt(new DecimalFormat("#,###,###").format(loaiGhe.getPhuThu() + giaVe.getDonGia() + phuThuSuatChieu), i, 6);
                 }
-                
+
                 tinhTongTien();
             }
         });
@@ -104,15 +109,15 @@ public class DialogThongTinVeBan extends javax.swing.JDialog {
         for (GiaVe giaVe : giaveList) {
             defaultComboBoxModel.addElement(giaVe);
         }
-        
+
         tblThongTin.getColumnModel().getColumn(3).setCellEditor(new DefaultCellEditor(comboBox));
-        
+
         DefaultTableCellRenderer renderer
                 = new DefaultTableCellRenderer();
         renderer.setToolTipText("Click để chọn đối tượng");
         tblThongTin.getColumnModel().getColumn(3).setCellRenderer(renderer);
     }
-    
+
     private void setDataToInput() {
         txtMaSuatChieu.setText(suatChieu.getId());
         txtNgayChieu.setText(new SimpleDateFormat("dd-MM-yyyy").format(suatChieu.getNgayChieu()));
@@ -122,16 +127,16 @@ public class DialogThongTinVeBan extends javax.swing.JDialog {
         txtDinhDang.setText(suatChieu.getDinhDangPhim().getTen());
         txtPhongChieu.setText("Phòng " + suatChieu.getPhongChieu().getId());
     }
-    
+
     private void setDataToTable() {
         DefaultTableModel defaultTableModel = (DefaultTableModel) tblThongTin.getModel();
-        
+
         DecimalFormat df = new DecimalFormat("#,###,###");
-        
+
         for (Map.Entry<String, GheNgoi> entry : selectedGheNgoiMap.entrySet()) {
             String viTriGhe = entry.getKey();
             GheNgoi gheNgoi = entry.getValue();
-            
+
             defaultTableModel.addRow(new Object[]{
                 viTriGhe,
                 gheNgoi.getLoaiGhe(),
@@ -143,15 +148,19 @@ public class DialogThongTinVeBan extends javax.swing.JDialog {
             });
         }
     }
-    
+
     private void tinhTongTien() {
         int total = 0;
-        
+
         for (int i = 0; i < tblThongTin.getRowCount(); i++) {
             total += Integer.parseInt(tblThongTin.getValueAt(i, 6).toString().replace(",", ""));
         }
-                
-        lblTongTien.setText(new DecimalFormat("#,###,###").format(total) + " vnd");
+
+        lblTongTien.setText(new DecimalFormat("##,###,###").format(total) + " VND");
+    }
+
+    private void inVeban(List<VeBanReportParameter> listReportParameters) {
+       ReportPrinterUtil.showMultiPrintPreview(listReportParameters, ReportPrinterUtil.VEBAN_REPORT_URL);
     }
 
     /**
@@ -474,25 +483,37 @@ public class DialogThongTinVeBan extends javax.swing.JDialog {
     private void btnInVeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnInVeActionPerformed
         boolean isSuccess = true;
         VeBanDao veBanDao = new VeBanDaoImpl();
-        for (int i = 0; i < tblThongTin.getRowCount(); i++) {
-            GheNgoi gheNgoi = selectedGheNgoiMap.get(tblThongTin.getValueAt(i, 0));
-            GiaVe giaVe = (GiaVe) tblThongTin.getValueAt(i, 3);
-            int tongTien = Integer.parseInt(tblThongTin.getValueAt(i, 6).toString().replace(",", ""));
-            
-            VeBan veBan = new VeBan("", gheNgoi, giaVe, suatChieu, new Date(), tongTien);
-            veBan.setNguoiDung(ShareHelper.USER);
-            try {
+        List<VeBanReportParameter> listReportParameters = new ArrayList<>();
+        try {
+            for (int i = 0; i < tblThongTin.getRowCount(); i++) {
+                GheNgoi gheNgoi = selectedGheNgoiMap.get(tblThongTin.getValueAt(i, 0));
+                GiaVe giaVe = (GiaVe) tblThongTin.getValueAt(i, 3);
+                int tongTien = Integer.parseInt(tblThongTin.getValueAt(i, 6).toString().replace(",", ""));
+
+                VeBan veBan = new VeBan("", gheNgoi, giaVe, suatChieu, new Date(), tongTien);
+                veBan.setNguoiDung(ShareHelper.USER);
+
                 veBanDao.insert(veBan);
-            } catch (Exception e) {
-                e.printStackTrace();
-                isSuccess = false;
+
+                VeBanReportParameter reportParameter
+                        = new VeBanReportParameter(suatChieu.getPhim().getTen(),
+                                tongTien,
+                                suatChieu.getDinhDangPhim().getId(),
+                                suatChieu.getPhongChieu().getId(),
+                                suatChieu.getNgayChieu(),
+                                suatChieu.getGioBatDau(),
+                                gheNgoi.getViTriDay() + gheNgoi.getViTriCot());
+                listReportParameters.add(reportParameter);
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+            isSuccess = false;
         }
-        
+
         if (isSuccess) {
-            DialogHelper.message(this, "Thêm vé bán thành công", DialogHelper.INFORMATION_MESSAGE);
-                this.dispose();
-        }else{
+            this.inVeban(listReportParameters);
+            this.dispose();
+        } else {
             DialogHelper.message(this, "Đã xảy ra lỗi trong quá trình thêm vé bán!", DialogHelper.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_btnInVeActionPerformed

@@ -19,6 +19,8 @@ import poly.app.core.daoimpl.SuatChieuDaoImpl;
 import poly.app.core.entities.Phim;
 import poly.app.core.entities.PhongChieu;
 import poly.app.core.entities.SuatChieu;
+import poly.app.core.helper.DateHelper;
+import poly.app.ui.custom.ClosableTabbedPane;
 import poly.app.ui.dialogs.capnhat.DialogCapNhatSuatChieu;
 import poly.app.ui.utils.TableRendererUtil;
 
@@ -26,7 +28,7 @@ import poly.app.ui.utils.TableRendererUtil;
  *
  * @author vothanhtai
  */
-public class FrameQLSuatChieu extends javax.swing.JFrame {
+public class FrameQLSuatChieu extends javax.swing.JFrame implements ClosableTabbedPane.ClosableTabbedPaneMethod{
 
     List<SuatChieu> suatChieuList = new ArrayList<>();
     Map<String, Phim> phimMap = new TreeMap<>();
@@ -41,6 +43,7 @@ public class FrameQLSuatChieu extends javax.swing.JFrame {
         this.setExtendedState(javax.swing.JFrame.MAXIMIZED_BOTH);
         setTitle("Quản lý suất chiếu");
         reRenderUI();
+        loadDataToCboPhongChieu();
     }
 
     private void reRenderUI() {
@@ -48,17 +51,17 @@ public class FrameQLSuatChieu extends javax.swing.JFrame {
         TableRendererUtil tblRenderer = new TableRendererUtil(tblSuatChieu);
         tblRenderer.setCellEditable(false);
         tblRenderer.changeHeaderStyle();
-        
+
         tblRenderer.setColoumnWidthByPersent(0, 5);
         tblRenderer.setColoumnWidthByPersent(2, 25);
         tblRenderer.setColoumnWidthByPersent(4, 20);
-        
+
         tblRenderer.setColumnAlignment(1, TableRendererUtil.CELL_ALIGN_CENTER);
         tblRenderer.setColumnAlignment(3, TableRendererUtil.CELL_ALIGN_CENTER);
         tblRenderer.setColumnAlignment(4, TableRendererUtil.CELL_ALIGN_CENTER);
         tblRenderer.setColumnAlignment(5, TableRendererUtil.CELL_ALIGN_CENTER);
         tblRenderer.setColumnAlignment(7, TableRendererUtil.CELL_ALIGN_CENTER);
-        
+
         rdoDaChieu.setEnabled(false);
         rdoDangChieu.setEnabled(false);
         rdoSapChieu.setEnabled(false);
@@ -66,13 +69,34 @@ public class FrameQLSuatChieu extends javax.swing.JFrame {
     }
 
     public JPanel getMainPanel() {
-        formWindowOpened(null);
-        return pnlMain;
+        synchronizedData();
+        return this.pnlMain;
     }
     
-    private void loadDataToCboPhongChieu(){
-        DefaultComboBoxModel comboBoxModel = (DefaultComboBoxModel) cboPhongChieu.getModel();        
-        new  PhongChieuDaoImpl().getAll().forEach((phongChieu) -> {
+    public void synchronizedData(){
+        resetSearchForm();
+        this.loadAllToTable();
+        this.loadTenPhimCombobox();
+    }
+
+    private void resetSearchForm() {
+        dcNgayHienThi.setDate(new Date());
+        cboPhongChieu.setSelectedIndex(0);
+
+        chkTenPhim.setSelected(false);
+        cboPhim.setSelectedIndex(0);
+        cboPhim.setEnabled(false);
+
+        chkTrangThai.setSelected(false);
+        rdoSapChieu.setSelected(true);
+        rdoSapChieu.setEnabled(false);
+        rdoDangChieu.setEnabled(false);
+        rdoDaChieu.setEnabled(false);
+    }
+
+    private void loadDataToCboPhongChieu() {
+        DefaultComboBoxModel comboBoxModel = (DefaultComboBoxModel) cboPhongChieu.getModel();
+        new PhongChieuDaoImpl().getAll().forEach((phongChieu) -> {
             comboBoxModel.addElement(phongChieu);
         });
     }
@@ -95,34 +119,46 @@ public class FrameQLSuatChieu extends javax.swing.JFrame {
                         i++,
                         sc.getId(),
                         sc.getPhim().getTen(),
-                        sc.getNgayChieu(),
+                        DateHelper.OUT_DATE_FORMAT.format(sc.getNgayChieu()),
                         sdf.format(sc.getGioBatDau()) + " - " + sdf.format(sc.getGioKetThuc()),
                         sc.getDinhDangPhim().getId(),
                         sc.getPhim().getNgonNgu(),
                         sc.getPhongChieu().getId(),
                         trangThai
                     });
-           
+
             suatChieuList.add(sc);
             phimMap.put(sc.getPhim().getId(), sc.getPhim());
         }
         this.tblSuatChieu.setModel(defaultTableModel);
     }
 
-    public List<SuatChieu> fillterByStatus(List<SuatChieu> inputSearch) {
+    public List<SuatChieu> searchAdvanced() {
         List<SuatChieu> searchResult = new ArrayList<>();
-        for (SuatChieu sc : inputSearch) {
+        for (SuatChieu sc : suatChieuList) {
             String trangThai = sc.getGioBatDau().compareTo(new Date()) > 0 ? "Sắp chiếu" : "Đã chiếu";
             if (sc.getGioBatDau().compareTo(new Date()) < 0 && sc.getGioKetThuc().compareTo(new Date()) > 0) {
                 trangThai = "Đang chiếu";
             }
 
-            if ((trangThai.equals(rdoDangChieu.getText()) && rdoDangChieu.isSelected())
-                    || (trangThai.equals(rdoDaChieu.getText()) && rdoDaChieu.isSelected())
-                    || (trangThai.equals(rdoSapChieu.getText()) && rdoSapChieu.isSelected())) {
+            boolean isCanAdd = true;
 
+            if (chkTenPhim.isSelected() && !cboPhim.getSelectedItem().equals(sc.getPhim())) {
+                isCanAdd = false;
+            }
+
+            if (chkTrangThai.isSelected()) {
+                if (!trangThai.equals(rdoDangChieu.getText()) && rdoDangChieu.isSelected()) {
+                    isCanAdd = false;
+                } else if (!trangThai.equals(rdoDaChieu.getText()) && rdoDaChieu.isSelected()) {
+                    isCanAdd = false;
+                } else if (!trangThai.equals(rdoSapChieu.getText()) && rdoSapChieu.isSelected()) {
+                    isCanAdd = false;
+                }
+            }
+
+            if (isCanAdd) {
                 searchResult.add(sc);
-
             }
         }
 
@@ -164,18 +200,6 @@ public class FrameQLSuatChieu extends javax.swing.JFrame {
 
         this.tblSuatChieu.setModel(defaultTableModel);
 
-    }
-
-    private List<SuatChieu> filterByName(List<SuatChieu> inputSearch) {
-        List<SuatChieu> searchResult = new ArrayList<>();
-        
-        for (SuatChieu sc : inputSearch) {
-            if (sc.getPhim().getTen().equals(cboPhim.getSelectedItem().toString())) {
-                searchResult.add(sc);
-            }
-        }
-
-        return searchResult;
     }
 
     /**
@@ -257,6 +281,7 @@ public class FrameQLSuatChieu extends javax.swing.JFrame {
         rdoSapChieu.setFont(new java.awt.Font("Open Sans", 0, 14)); // NOI18N
         rdoSapChieu.setSelected(true);
         rdoSapChieu.setText("Sắp chiếu");
+        rdoSapChieu.setEnabled(false);
         rdoSapChieu.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 rdoSapChieuActionPerformed(evt);
@@ -266,6 +291,7 @@ public class FrameQLSuatChieu extends javax.swing.JFrame {
         buttonGroup1.add(rdoDangChieu);
         rdoDangChieu.setFont(new java.awt.Font("Open Sans", 0, 14)); // NOI18N
         rdoDangChieu.setText("Đang chiếu");
+        rdoDangChieu.setEnabled(false);
         rdoDangChieu.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 rdoDangChieuActionPerformed(evt);
@@ -275,6 +301,7 @@ public class FrameQLSuatChieu extends javax.swing.JFrame {
         buttonGroup1.add(rdoDaChieu);
         rdoDaChieu.setFont(new java.awt.Font("Open Sans", 0, 14)); // NOI18N
         rdoDaChieu.setText("Đã chiếu");
+        rdoDaChieu.setEnabled(false);
         rdoDaChieu.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 rdoDaChieuActionPerformed(evt);
@@ -286,16 +313,6 @@ public class FrameQLSuatChieu extends javax.swing.JFrame {
         cboPhim.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 cboPhimItemStateChanged(evt);
-            }
-        });
-        cboPhim.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cboPhimActionPerformed(evt);
-            }
-        });
-        cboPhim.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
-            public void propertyChange(java.beans.PropertyChangeEvent evt) {
-                cboPhimPropertyChange(evt);
             }
         });
 
@@ -325,21 +342,24 @@ public class FrameQLSuatChieu extends javax.swing.JFrame {
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGap(10, 10, 10)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel3)
-                    .addComponent(dcNgayHienThi, javax.swing.GroupLayout.PREFERRED_SIZE, 230, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(cboPhongChieu, javax.swing.GroupLayout.PREFERRED_SIZE, 230, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(cboPhim, javax.swing.GroupLayout.PREFERRED_SIZE, 230, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(chkTenPhim)
-                    .addComponent(rdoDaChieu)
-                    .addComponent(rdoDangChieu)
-                    .addComponent(rdoSapChieu)
-                    .addComponent(chkTrangThai))
-                .addContainerGap(10, Short.MAX_VALUE))
+                    .addComponent(dcNgayHienThi, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(cboPhongChieu, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel3)
+                            .addComponent(rdoDaChieu)
+                            .addComponent(rdoDangChieu)
+                            .addComponent(rdoSapChieu)
+                            .addComponent(chkTrangThai)
+                            .addComponent(cboPhim, javax.swing.GroupLayout.PREFERRED_SIZE, 260, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(chkTenPhim))
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addGap(10, 10, 10))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(16, 16, 16)
+                .addGap(15, 15, 15)
                 .addComponent(jLabel1)
                 .addGap(22, 22, 22)
                 .addComponent(jLabel2)
@@ -361,7 +381,7 @@ public class FrameQLSuatChieu extends javax.swing.JFrame {
                 .addComponent(rdoDangChieu, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(rdoDaChieu, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(158, Short.MAX_VALUE))
+                .addContainerGap(159, Short.MAX_VALUE))
         );
 
         jPanel3.setBackground(new java.awt.Color(255, 255, 255));
@@ -389,14 +409,14 @@ public class FrameQLSuatChieu extends javax.swing.JFrame {
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
-                .addGap(16, 16, 16)
+                .addGap(15, 15, 15)
                 .addComponent(btnTimeline, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(16, Short.MAX_VALUE))
+                .addContainerGap(15, Short.MAX_VALUE))
         );
 
         jPanel5.setOpaque(false);
 
-        tblSuatChieu.setFont(new java.awt.Font("Open Sans", 0, 13)); // NOI18N
+        tblSuatChieu.setFont(new java.awt.Font("Open Sans", 0, 14)); // NOI18N
         tblSuatChieu.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
@@ -420,7 +440,7 @@ public class FrameQLSuatChieu extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
-        tblSuatChieu.setRowHeight(20);
+        tblSuatChieu.setRowHeight(22);
         tblSuatChieu.setSelectionBackground(new java.awt.Color(96, 116, 129));
         tblSuatChieu.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         tblSuatChieu.setShowHorizontalLines(false);
@@ -438,13 +458,13 @@ public class FrameQLSuatChieu extends javax.swing.JFrame {
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel5Layout.createSequentialGroup()
                 .addGap(10, 10, 10)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 680, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 676, Short.MAX_VALUE)
                 .addGap(10, 10, 10))
         );
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel5Layout.createSequentialGroup()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 555, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 557, Short.MAX_VALUE)
                 .addGap(10, 10, 10))
         );
 
@@ -521,7 +541,6 @@ public class FrameQLSuatChieu extends javax.swing.JFrame {
     }//GEN-LAST:event_btnCollapseMouseReleased
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
-        loadDataToCboPhongChieu();
         loadAllToTable();
         loadTenPhimCombobox();
     }//GEN-LAST:event_formWindowOpened
@@ -535,15 +554,7 @@ public class FrameQLSuatChieu extends javax.swing.JFrame {
 
     private void chkTenPhimActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkTenPhimActionPerformed
         cboPhim.setEnabled(chkTenPhim.isSelected());
-        if (chkTenPhim.isSelected()) {
-            if (chkTrangThai.isSelected()) {
-                loadFilterDataToTable(filterByName(fillterByStatus(suatChieuList)));
-            } else {
-                loadFilterDataToTable(filterByName(suatChieuList));
-            }
-        }else{
-            loadFilterDataToTable(fillterByStatus(suatChieuList));
-        }
+        loadFilterDataToTable(searchAdvanced());
     }//GEN-LAST:event_chkTenPhimActionPerformed
 
     private void dcNgayHienThiPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_dcNgayHienThiPropertyChange
@@ -564,71 +575,38 @@ public class FrameQLSuatChieu extends javax.swing.JFrame {
             rdoDaChieu.setEnabled(true);
             rdoDangChieu.setEnabled(true);
             rdoSapChieu.setEnabled(true);
-            if (chkTenPhim.isSelected()) {
-                loadFilterDataToTable(fillterByStatus(filterByName(suatChieuList)));
-            } else {
-                loadFilterDataToTable(fillterByStatus(suatChieuList));
-            }
-
         } else {
             rdoDaChieu.setEnabled(false);
             rdoDangChieu.setEnabled(false);
             rdoSapChieu.setEnabled(false);
-            loadAllToTable();
+            rdoSapChieu.setSelected(true);
         }
+
+        loadFilterDataToTable(searchAdvanced());
     }//GEN-LAST:event_chkTrangThaiActionPerformed
 
     private void rdoSapChieuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rdoSapChieuActionPerformed
-        if (chkTenPhim.isSelected()) {
-            loadFilterDataToTable(fillterByStatus(filterByName(suatChieuList)));
-        } else {
-            loadFilterDataToTable(fillterByStatus(suatChieuList));
-        }
+        loadFilterDataToTable(searchAdvanced());
     }//GEN-LAST:event_rdoSapChieuActionPerformed
 
     private void rdoDaChieuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rdoDaChieuActionPerformed
-        if (chkTenPhim.isSelected()) {
-            loadFilterDataToTable(fillterByStatus(filterByName(suatChieuList)));
-        } else {
-            loadFilterDataToTable(fillterByStatus(suatChieuList));
-        }
+        loadFilterDataToTable(searchAdvanced());
     }//GEN-LAST:event_rdoDaChieuActionPerformed
 
     private void rdoDangChieuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rdoDangChieuActionPerformed
-        if (chkTenPhim.isSelected()) {
-            loadFilterDataToTable(fillterByStatus(filterByName(suatChieuList)));
-        } else {
-            loadFilterDataToTable(fillterByStatus(suatChieuList));
-        }
+        loadFilterDataToTable(searchAdvanced());
     }//GEN-LAST:event_rdoDangChieuActionPerformed
 
-    private void cboPhimPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_cboPhimPropertyChange
-
-    }//GEN-LAST:event_cboPhimPropertyChange
-
     private void cboPhimItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cboPhimItemStateChanged
-        if (chkTenPhim.isSelected()) {
-            if (chkTrangThai.isSelected()) {
-                loadFilterDataToTable(filterByName(fillterByStatus(suatChieuList)));
-            }
-                else {
-                loadFilterDataToTable(filterByName(suatChieuList));
-            }
+        if (cboPhim.getItemCount() > 0) {
+            loadFilterDataToTable(searchAdvanced());
         }
-
     }//GEN-LAST:event_cboPhimItemStateChanged
-
-    private void cboPhimActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cboPhimActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_cboPhimActionPerformed
 
     private void cboPhongChieuItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cboPhongChieuItemStateChanged
         loadAllToTable();
         loadTenPhimCombobox();
-        cboPhim.setEditable(false);
-        rdoDaChieu.setEnabled(false);
-        rdoDangChieu.setEnabled(false);
-        rdoSapChieu.setEnabled(false);
+        loadFilterDataToTable(searchAdvanced());
     }//GEN-LAST:event_cboPhongChieuItemStateChanged
 
     private void btnTimelineActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTimelineActionPerformed

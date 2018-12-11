@@ -13,13 +13,14 @@ import javax.swing.DefaultComboBoxModel;
 import poly.app.core.daoimpl.PhimDaoImpl;
 import poly.app.core.entities.Phim;
 import poly.app.core.helper.DialogHelper;
+import poly.app.ui.utils.ValidationUtil;
 
 /**
  *
  * @author vothanhtai
  */
 public class DialogThemPhim extends javax.swing.JDialog {
-    
+
     /**
      * Creates new form DialogThemNhanVien
      */
@@ -28,51 +29,37 @@ public class DialogThemPhim extends javax.swing.JDialog {
         initComponents();
         setLocationRelativeTo(null);
     }
-    
-    private void loadLoaiPhimToCombobox(){
+
+    private void loadLoaiPhimToCombobox() {
         List<LoaiPhim> listLoaiPhim = new LoaiPhimDaoImpl().getAll();
         DefaultComboBoxModel modelCboTheLoai = (DefaultComboBoxModel) cboTheLoai.getModel();
-        for ( LoaiPhim loaiPhim : listLoaiPhim ) {
+        for (LoaiPhim loaiPhim : listLoaiPhim) {
             modelCboTheLoai.addElement(loaiPhim);
         }
         modelCboTheLoai.setSelectedItem(listLoaiPhim.get(0));
     }
-    
-    private Phim getModelFromInput(){
+
+    private Phim getModelFromInput() {
 //        code lay phim tu input
-        
+
         Phim phim = new Phim();
-        phim.setId("PH"+new Date().getTime());
+        phim.setId("");
         phim.setTen(txtTen.getText());
-        phim.setThoiLuong((int)spnThoiLuong.getValue());
-        phim.setGioiHanTuoi((int)spnGioiHanTuoi.getValue());
+        phim.setThoiLuong((int) spnThoiLuong.getValue());
+        phim.setGioiHanTuoi((int) spnGioiHanTuoi.getValue());
         phim.setNgayCongChieu(dcNgayChieu.getDate());
         phim.setNgonNgu(cboNgonNgu.getSelectedItem().toString());
         phim.setNhaSanXuat(cboNSX.getSelectedItem().toString());
         phim.setDienVien(txtDienVien.getText());
         phim.setQuocGia(cboQuocGia.getSelectedItem().toString());
         phim.setTrangThai(cboTrangThai.getSelectedItem().toString());
-        phim.setLoaiPhim((LoaiPhim)cboTheLoai.getSelectedItem());
+        phim.setLoaiPhim((LoaiPhim) cboTheLoai.getSelectedItem());
         phim.setTomTat(txtTomTat.getText());
         phim.setDaXoa(false);
         return phim;
     }
-    
-    private void clearForm() {
-        txtTen.setText("");
-        spnThoiLuong.setValue(0);
-        spnGioiHanTuoi.setValue(0);
-        dcNgayChieu.setDate(new Date());
-        cboNgonNgu.setSelectedIndex(0);
-        cboNSX.setSelectedIndex(0);
-        txtDienVien.setText("");
-        cboQuocGia.setSelectedIndex(0);
-        cboTrangThai.setSelectedIndex(0);
-        cboTheLoai.setSelectedIndex(0);
-        txtTomTat.setText("");
-    }
-    
-    private boolean insertModelToDatabase(){
+
+    private boolean insertModelToDatabase() {
 //        goi ham getModelFromInput
         Phim phim = getModelFromInput();
         try {
@@ -81,6 +68,26 @@ public class DialogThemPhim extends javax.swing.JDialog {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public boolean checkInput() {
+        if (ValidationUtil.isEmpty(txtTen.getText())) {
+            DialogHelper.message(this, "Chưa nhập tên phim", DialogHelper.ERROR_MESSAGE);
+            return false;
+        }
+        if (Integer.parseInt(spnThoiLuong.getValue().toString()) <= 0) {
+            DialogHelper.message(this, "Thời lượng không được nhỏ hơn hoặc bằng 0!", DialogHelper.ERROR_MESSAGE);
+            return false;
+        }
+        if (Integer.parseInt(spnGioiHanTuoi.getValue().toString()) <= 0) {
+            DialogHelper.message(this, "Giới hạn tuổi không được nhỏ hơn hoặc bằng 0!", DialogHelper.ERROR_MESSAGE);
+            return false;
+        }
+        if (dcNgayChieu.getDate() == null) {
+            DialogHelper.message(this, "Chưa chọn ngày công chiếu!", DialogHelper.ERROR_MESSAGE);
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -194,8 +201,18 @@ public class DialogThemPhim extends javax.swing.JDialog {
         cboQuocGia.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Việt Nam", "Anh", "Nga", "Mỹ", "Trung Quốc", "Hàn Quốc" }));
 
         spnThoiLuong.setFont(new java.awt.Font("Open Sans", 0, 14)); // NOI18N
+        spnThoiLuong.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                spnThoiLuongKeyTyped(evt);
+            }
+        });
 
         spnGioiHanTuoi.setFont(new java.awt.Font("Open Sans", 0, 14)); // NOI18N
+        spnGioiHanTuoi.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                spnGioiHanTuoiKeyTyped(evt);
+            }
+        });
 
         dcNgayChieu.setDateFormatString("dd-MM-yyyy");
         dcNgayChieu.setFont(new java.awt.Font("Open Sans", 0, 14)); // NOI18N
@@ -238,6 +255,7 @@ public class DialogThemPhim extends javax.swing.JDialog {
 
         btnLuu.setFont(new java.awt.Font("Open Sans", 0, 14)); // NOI18N
         btnLuu.setText("Lưu");
+        btnLuu.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         btnLuu.setPreferredSize(new java.awt.Dimension(75, 33));
         btnLuu.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -250,6 +268,7 @@ public class DialogThemPhim extends javax.swing.JDialog {
 
         btnHuy.setFont(new java.awt.Font("Open Sans", 0, 14)); // NOI18N
         btnHuy.setText("Huỷ");
+        btnHuy.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         btnHuy.setPreferredSize(new java.awt.Dimension(75, 33));
         btnHuy.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -266,6 +285,7 @@ public class DialogThemPhim extends javax.swing.JDialog {
         jPanel4.setLayout(new java.awt.GridBagLayout());
 
         jLabel15.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(102, 102, 102)));
+        jLabel15.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         jLabel15.setOpaque(true);
         jLabel15.setPreferredSize(new java.awt.Dimension(140, 190));
         jPanel4.add(jLabel15, new java.awt.GridBagConstraints());
@@ -404,17 +424,33 @@ public class DialogThemPhim extends javax.swing.JDialog {
     }//GEN-LAST:event_formWindowOpened
 
     private void btnLuuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLuuActionPerformed
-        if (insertModelToDatabase()){
-            DialogHelper.message(this, "Thêm dữ liệu thành công!", DialogHelper.INFORMATION_MESSAGE);
-            this.dispose();
-        }else{
-            DialogHelper.message(this, "Thêm dữ liệu thất bại!", DialogHelper.ERROR_MESSAGE);
+        if (checkInput()) {
+            if (insertModelToDatabase()) {
+                DialogHelper.message(this, "Thêm dữ liệu thành công!", DialogHelper.INFORMATION_MESSAGE);
+                this.dispose();
+            } else {
+                DialogHelper.message(this, "Thêm dữ liệu thất bại!", DialogHelper.ERROR_MESSAGE);
+            }
         }
     }//GEN-LAST:event_btnLuuActionPerformed
 
     private void btnHuyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHuyActionPerformed
         this.dispose();
     }//GEN-LAST:event_btnHuyActionPerformed
+
+    private void spnThoiLuongKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_spnThoiLuongKeyTyped
+        if(String.valueOf(evt.getKeyChar()).matches("\\D"))
+        {
+            evt.consume();
+        }
+    }//GEN-LAST:event_spnThoiLuongKeyTyped
+
+    private void spnGioiHanTuoiKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_spnGioiHanTuoiKeyTyped
+       if(String.valueOf(evt.getKeyChar()).matches("\\D"))
+        {
+            evt.consume();
+        }
+    }//GEN-LAST:event_spnGioiHanTuoiKeyTyped
 
     /**
      * @param args the command line arguments

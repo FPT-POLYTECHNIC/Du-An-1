@@ -1,4 +1,4 @@
-/*
+   /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
@@ -6,12 +6,16 @@
 package poly.app.ui.dialogs.capnhat;
 
 import java.util.List;
+import java.util.Set;
 import javax.swing.DefaultComboBoxModel;
+import poly.app.core.daoimpl.DoAnChiTietDaoImpl;
 import poly.app.core.daoimpl.DoAnDaoImpl;
 import poly.app.core.daoimpl.LoaiDoAnDaoImpl;
 import poly.app.core.entities.DoAn;
+import poly.app.core.entities.DoAnChiTiet;
 import poly.app.core.entities.LoaiDoAn;
 import poly.app.core.helper.DialogHelper;
+import poly.app.ui.utils.ValidationUtil;
 
 /**
  *
@@ -20,6 +24,7 @@ import poly.app.core.helper.DialogHelper;
 public class DialogCapNhatDoAn extends javax.swing.JDialog {
 
     DoAn doAn;
+
     /**
      * Creates new form DialogThemNhanVien
      */
@@ -27,56 +32,59 @@ public class DialogCapNhatDoAn extends javax.swing.JDialog {
         super(parent, modal);
         initComponents();
         setLocationRelativeTo(null);
-        
+
     }
-    
+
     public DialogCapNhatDoAn(java.awt.Frame parent, boolean modal, DoAn doAn) {
         super(parent, modal);
         initComponents();
         setLocationRelativeTo(null);
         this.doAn = doAn;
     }
-    
-    private void loadLoaiDoAnToCombobox(){
+
+    private void loadLoaiDoAnToCombobox() {
         DefaultComboBoxModel modelComboBox = (DefaultComboBoxModel) cboLoaiDoAn.getModel();
         modelComboBox.removeAllElements();
         LoaiDoAnDaoImpl lda = new LoaiDoAnDaoImpl();
         List<LoaiDoAn> listLDA = lda.getAll();
-        for(LoaiDoAn fill : listLDA)
-        {
+        for (LoaiDoAn fill : listLDA) {
             modelComboBox.addElement(fill);
         }
     }
-    
-    private void setModelToInput(){
+
+    private void setModelToInput() {
 //        Do du lieu len input
         txtTen.setText(doAn.getTen());
         cboLoaiDoAn.getModel().setSelectedItem(doAn.getLoaiDoAn());
-        if(doAn.isDangBan()==true)
-        {
+        if (doAn.isDangBan() == true) {
             cboTrangThai.setSelectedIndex(0);
-        }
-        else
-        {
+        } else {
             cboTrangThai.setSelectedIndex(1);
         }
-        
+
     }
-    
-    private DoAn getModelFromInput(){
+
+    private DoAn getModelFromInput() {
 //        code lay do an tu input
         doAn.setTen(txtTen.getText());
         doAn.setLoaiDoAn((LoaiDoAn) cboLoaiDoAn.getSelectedItem());
-        if (cboTrangThai.getSelectedItem().toString().equals("Đang được bán")) {
+        DoAnChiTietDaoImpl dactDAO = new DoAnChiTietDaoImpl();
+        if (cboTrangThai.getSelectedIndex()==0) {
             doAn.setDangBan(true);
         } else {
             doAn.setDangBan(false);
+            Set<DoAnChiTiet> setDACT = doAn.getDoAnChiTiets();
+            for(DoAnChiTiet dact : setDACT)
+            {
+                dact.setDangBan(false);
+                dactDAO.update(dact);
+            }
         }
-        
+
         return doAn;
     }
-    
-    private boolean updateModelToDatabase(){
+
+    private boolean updateModelToDatabase() {
 //        goi ham getModelFromInput
         try {
             DoAnDaoImpl updateDoAn = new DoAnDaoImpl();
@@ -85,6 +93,14 @@ public class DialogCapNhatDoAn extends javax.swing.JDialog {
         } catch (Exception e) {
         }
         return false;
+    }
+
+    private boolean validateInput() {
+        if (!ValidationUtil.isLenghtEnought(txtTen.getText(), 3)) {
+            DialogHelper.message(this, "Nhập tên đồ ăn, ít nhất 3 kí tự !", DialogHelper.ERROR_MESSAGE);
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -137,6 +153,7 @@ public class DialogCapNhatDoAn extends javax.swing.JDialog {
         cboTrangThai.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Đang được bán", "Đã ngưng bán" }));
 
         cboLoaiDoAn.setFont(new java.awt.Font("Open Sans", 0, 14)); // NOI18N
+        cboLoaiDoAn.setEnabled(false);
 
         jPanel2.setOpaque(false);
 
@@ -263,12 +280,15 @@ public class DialogCapNhatDoAn extends javax.swing.JDialog {
     }//GEN-LAST:event_formWindowOpened
 
     private void btnLuuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLuuActionPerformed
-        if (updateModelToDatabase()){
-            DialogHelper.message(this, "Cập nhật dữ liệu thành công!", DialogHelper.INFORMATION_MESSAGE);
-            this.dispose();
-        }else{
-            DialogHelper.message(this, "Cập nhật dữ liệu thất bại! ", DialogHelper.ERROR_MESSAGE);
+        if (validateInput()) {
+            if (updateModelToDatabase()) {
+                DialogHelper.message(this, "Cập nhật dữ liệu thành công!", DialogHelper.INFORMATION_MESSAGE);
+                this.dispose();
+            } else {
+                DialogHelper.message(this, "Cập nhật dữ liệu thất bại! ", DialogHelper.ERROR_MESSAGE);
+            }
         }
+
     }//GEN-LAST:event_btnLuuActionPerformed
 
     private void btnHuyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHuyActionPerformed
